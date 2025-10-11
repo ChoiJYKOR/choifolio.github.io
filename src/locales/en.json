@@ -1,0 +1,101 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "projects": "Projects",
+    "experience": "Experience",
+    "skills": "Skills",
+    "books": "Books",
+    "videoLearnings": "Video Learning",
+    "contact": "Contact",
+    "admin": "Admin"
+  },
+  "common": {
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "loading": "Loading...",
+    "viewDetail": "View Detail",
+    "backToList": "Back to List",
+    "noData": "No data available"
+  },
+  "hero": {
+    "greeting": "Hello, I'm",
+    "viewProjects": "View Projects",
+    "contactMe": "Contact Me"
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "My Projects",
+    "status": {
+      "all": "All",
+      "planning": "Planning",
+      "preparing": "Preparing",
+      "completed": "Completed"
+    },
+    "category": "Category",
+    "technologies": "Technologies",
+    "features": "Features",
+    "learnings": "Learnings",
+    "detailedDescription": "Detailed Description",
+    "githubLink": "GitHub Link",
+    "liveLink": "Live Link"
+  },
+  "experience": {
+    "title": "Experience",
+    "subtitle": "Work Experience",
+    "period": "Period",
+    "company": "Company",
+    "description": "Description"
+  },
+  "skills": {
+    "title": "Skills",
+    "subtitle": "My Skills",
+    "level": "Proficiency",
+    "category": "Category"
+  },
+  "books": {
+    "title": "Books",
+    "subtitle": "Books I've Read",
+    "author": "Author",
+    "rating": "Rating",
+    "readDate": "Read Date",
+    "chapters": "Chapters",
+    "learnings": "Learnings"
+  },
+  "videoLearnings": {
+    "title": "Video Learning",
+    "subtitle": "Videos I've Watched",
+    "individual": "Individual Videos",
+    "playlist": "Video Series",
+    "watchDate": "Watch Date",
+    "purpose": "Purpose",
+    "keyTakeaways": "Key Takeaways",
+    "application": "Application Plan"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Send me a message",
+    "name": "Name",
+    "email": "Email",
+    "subject": "Subject",
+    "message": "Message",
+    "send": "Send",
+    "sending": "Sending...",
+    "success": "Message sent successfully",
+    "error": "Failed to send. Please try again"
+  },
+  "about": {
+    "title": "About",
+    "subtitle": "About Me",
+    "education": "Education",
+    "location": "Location",
+    "yearsOfExperience": "Years of Experience"
+  }
+}
+
