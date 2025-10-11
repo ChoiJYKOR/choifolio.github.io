@@ -1,0 +1,2 @@
+import{c as e}from"./chunk-9a18e39e.js";import{ai as r}from"./index-12c0d33b.js";const a=async()=>{var e;const a=await r.getCategories();return(null==(e=a.data)?void 0:e.data)||a.data||[]},t=()=>{const{data:r=[],isLoading:t,error:i,refetch:o}=e({queryKey:["skillCategories"],queryFn:a,staleTime:3e5,gcTime:6e5});return{skillCategories:r,loading:t,error:i?"스킬 데이터를 불러오는데 실패했습니다.":null,refetch:o}};export{t as u};
+//# sourceMappingURL=chunk-d8625230.js.map

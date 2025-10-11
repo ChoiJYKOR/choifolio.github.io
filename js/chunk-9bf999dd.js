@@ -1,0 +1,2 @@
+import{c as e}from"./chunk-9a18e39e.js";import{Y as r}from"./index-12c0d33b.js";const t=async()=>(e=>e.slice().sort((e,r)=>void 0!==e.order&&void 0!==r.order?e.order-r.order:e.createdAt&&r.createdAt?new Date(r.createdAt).getTime()-new Date(e.createdAt).getTime():0))((await r.getAll()).data.data),a=()=>{const{data:r=[],isLoading:a,error:o,refetch:d}=e({queryKey:["experiences"],queryFn:t,staleTime:3e5,gcTime:6e5});return{experiences:r,loading:a,error:o?"경험 데이터를 불러오는 중 오류가 발생했습니다.":null,refetch:d}};export{a as u};
+//# sourceMappingURL=chunk-9bf999dd.js.map
