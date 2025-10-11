@@ -39,8 +39,8 @@ const setupAuthRoutes = (Admin) => {
       // HttpOnly 쿠키로 토큰 설정
       res.cookie('token', token, {
         httpOnly: true,    // XSS 공격 방지
-        secure: process.env.NODE_ENV === 'production', // HTTPS에서만 전송 (프로덕션)
-        sameSite: 'strict', // CSRF 공격 방지
+        secure: true, // HTTPS에서만 전송
+        sameSite: 'none', // 크로스 도메인 쿠키 허용
         maxAge: 24 * 60 * 60 * 1000 // 24시간 (밀리초)
       });
 

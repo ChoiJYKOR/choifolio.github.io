@@ -69,8 +69,8 @@ const config = {
   // 쿠키 설정
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // 개발 환경에서는 lax
+    secure: true, // HTTPS 필수
+    sameSite: 'none', // 크로스 도메인 쿠키 허용
     maxAge: 24 * 60 * 60 * 1000 // 24시간
   }
 };
