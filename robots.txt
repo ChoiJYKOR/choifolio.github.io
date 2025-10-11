@@ -1,0 +1,11 @@
+# Allow all search engines
+User-agent: *
+Allow: /
+
+# Disallow admin pages
+Disallow: /admin
+Disallow: /admin/*
+
+# Sitemap location
+Sitemap: https://choijykor.github.io/choifolio.github.io/sitemap.xml
+
