@@ -53,8 +53,14 @@ const BookSchema = new mongoose.Schema({
 const ExperienceSchema = new mongoose.Schema({
   period: String,
   title: String,
+  titleEn: String,
+  titleJa: String,
   company: String,
+  companyEn: String,
+  companyJa: String,
   description: String,
+  descriptionEn: String,
+  descriptionJa: String,
   // 🌟 카테고리별 상세 내용 (신규)
   // IMPORTANT: Single details array with multilingual internal fields (not split by language)
   details: [{
