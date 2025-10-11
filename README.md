@@ -68,21 +68,6 @@ copy .env.example .env  # Windows
 cp .env.example .env    # Mac/Linux
 \`\`\`
 
-`.env` 파일을 열고 **반드시 JWT_SECRET을 변경**하세요:
-
-\`\`\`env
-MONGODB_URI=mongodb://localhost:27017/portfolio
-JWT_SECRET=여기에-강력한-랜덤-문자열을-입력하세요
-PORT=5000
-\`\`\`
-
-**JWT_SECRET 생성 방법:**
-\`\`\`bash
-# Node.js로 랜덤 문자열 생성
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-
-# 또는 온라인 도구 사용: https://randomkeygen.com/
-\`\`\`
 
 ### 4. 관리자 계정 생성 (최초 1회 필수! 🔐)
 
@@ -98,18 +83,6 @@ npm run setup-admin
 - 비밀번호 (최소 8자, 복잡할수록 좋음)
 - 비밀번호 확인
 
-예시:
-\`\`\`
-=== 새 관리자 계정 생성 ===
-
-아이디를 입력하세요: cjy1227
-이메일을 입력하세요 (선택사항): juyeong_choi@naver.com
-비밀번호를 입력하세요 (최소 8자): ********
-비밀번호를 다시 입력하세요: ********
-
-✅ 관리자 계정이 성공적으로 생성되었습니다!
-\`\`\`
-
 ### 5. 개발 서버 실행
 \`\`\`bash
 npm run dev
@@ -124,12 +97,6 @@ npm run dev
 npm run build
 \`\`\`
 
-## 관리자 로그인
-
-- **아이디**: `npm run setup-admin`에서 설정한 아이디
-- **비밀번호**: `npm run setup-admin`에서 설정한 비밀번호
-
-로그인 후 관리자 대시보드에서 비밀번호를 변경할 수 있습니다.
 
 ## 사용 방법
 
