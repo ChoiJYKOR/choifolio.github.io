@@ -1,0 +1,1 @@
+import{Q as t,aN as o}from"./index-1fe3a1ef.js";const i=async()=>{var s;const e=await o.getCategories();return((s=e.data)==null?void 0:s.data)||e.data||[]},n=()=>{const{data:e=[],isLoading:a,error:s,refetch:r}=t({queryKey:["skillCategories"],queryFn:i,staleTime:3e5,gcTime:6e5});return{skillCategories:e,loading:a,error:s?"스킬 데이터를 불러오는데 실패했습니다.":null,refetch:r}};export{n as u};
