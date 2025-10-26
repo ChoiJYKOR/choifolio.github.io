@@ -13,10 +13,7 @@ const config = {
   // 데이터베이스 설정
   mongodb: {
     uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio',
-    options: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
+    options: {}
   },
   
   // JWT 설정
