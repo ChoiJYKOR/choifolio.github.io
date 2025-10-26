@@ -15,6 +15,7 @@ const setupExperienceRoutes = require('./experiences');
 const setupProjectRoutes = require('./projects');
 const setupContactRoutes = require('./contact');
 const setupSettingsRoutes = require('./settings');
+const uploadRoutes = require('./upload');
 const { authenticateToken, logAdminActivity } = require('../middleware/auth');
 const { skillSchema, skillCategorySchema, validateRequest } = require('../validation/schemas');
 
@@ -39,6 +40,7 @@ const setupRoutes = (app, models) => {
   app.use('/api/projects', setupProjectRoutes(Project));
   app.use('/api', setupContactRoutes(ContactMessage, Admin)); // /api로 변경하여 /admin/messages 경로가 /api/admin/messages가 되도록 함
   app.use('/api/settings', setupSettingsRoutes(SiteSettings));
+  app.use('/api/upload', authMiddleware, uploadRoutes); // 인증 미들웨어 추가
   
   // 메시지 관리 라우트는 이제 contact.js에서 처리됩니다
 

@@ -1,0 +1,101 @@
+{
+  "nav": {
+    "home": "홈",
+    "about": "소개",
+    "projects": "프로젝트",
+    "experience": "경력",
+    "skills": "기술",
+    "books": "서적",
+    "videoLearnings": "영상 학습",
+    "contact": "연락",
+    "admin": "관리자"
+  },
+  "common": {
+    "search": "검색",
+    "filter": "필터",
+    "all": "전체",
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "수정",
+    "create": "생성",
+    "loading": "로딩 중...",
+    "viewDetail": "자세히 보기",
+    "backToList": "목록으로 돌아가기",
+    "noData": "데이터가 없습니다"
+  },
+  "hero": {
+    "greeting": "안녕하세요, 저는",
+    "viewProjects": "프로젝트 보기",
+    "contactMe": "연락하기"
+  },
+  "projects": {
+    "title": "프로젝트",
+    "subtitle": "진행한 프로젝트들",
+    "status": {
+      "all": "전체",
+      "planning": "기획 중",
+      "preparing": "준비 중",
+      "completed": "완료"
+    },
+    "category": "카테고리",
+    "technologies": "기술 스택",
+    "features": "주요 기능",
+    "learnings": "배운 점",
+    "detailedDescription": "상세 설명",
+    "githubLink": "GitHub 링크",
+    "liveLink": "라이브 링크"
+  },
+  "experience": {
+    "title": "경력",
+    "subtitle": "업무 경험",
+    "period": "기간",
+    "company": "회사",
+    "description": "설명"
+  },
+  "skills": {
+    "title": "기술",
+    "subtitle": "보유 기술",
+    "level": "숙련도",
+    "category": "카테고리"
+  },
+  "books": {
+    "title": "서적",
+    "subtitle": "읽은 책들",
+    "author": "저자",
+    "rating": "평점",
+    "readDate": "읽은 날짜",
+    "chapters": "목차",
+    "learnings": "학습 내용"
+  },
+  "videoLearnings": {
+    "title": "영상 학습",
+    "subtitle": "학습한 영상들",
+    "individual": "개별 영상",
+    "playlist": "시리즈 영상",
+    "watchDate": "시청 날짜",
+    "purpose": "시청 목적",
+    "keyTakeaways": "핵심 배움",
+    "application": "적용 계획"
+  },
+  "contact": {
+    "title": "연락",
+    "subtitle": "메시지를 보내주세요",
+    "name": "이름",
+    "email": "이메일",
+    "subject": "제목",
+    "message": "메시지",
+    "send": "보내기",
+    "sending": "전송 중...",
+    "success": "메시지가 전송되었습니다",
+    "error": "전송 실패. 다시 시도해주세요"
+  },
+  "about": {
+    "title": "소개",
+    "subtitle": "저에 대해",
+    "education": "학력",
+    "location": "위치",
+    "yearsOfExperience": "경력 연수"
+  }
+}
+
