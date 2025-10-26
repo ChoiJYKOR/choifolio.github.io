@@ -1,1 +1,0 @@
-import{Q as o,af as a}from"./index-1fe3a1ef.js";const c=async()=>(await a.getAll()).data.data,u=()=>{const{data:e=[],isLoading:r,error:s,refetch:t}=o({queryKey:["projects"],queryFn:c,staleTime:3e5,gcTime:6e5});return{projects:e,loading:r,error:s?"프로젝트를 불러오는데 실패했습니다.":null,refetch:t}};export{u};
