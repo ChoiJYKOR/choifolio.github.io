@@ -6,21 +6,12 @@
     <script>
       // GitHub Pages SPA 404 리디렉션 해결
       // 현재 경로를 sessionStorage에 저장하고 루트로 이동
-      var path = window.location.pathname + window.location.search + window.location.hash;
-      // 서브패스 제거 (/choifolio.github.io/ 제거)
-      if (path.startsWith('/choifolio.github.io')) {
-        path = path.replace('/choifolio.github.io', '');
-      }
-      sessionStorage.setItem('redirectPath', path);
+      sessionStorage.setItem('redirectPath', location.pathname + location.search + location.hash);
       location.replace(location.origin + '/choifolio.github.io/');
     </script>
   </head>
   <body>
     <!-- GitHub Pages SPA redirect -->
-    <noscript>
-      <p>Redirecting to home page...</p>
-      <a href="/choifolio.github.io/">Click here</a>
-    </noscript>
   </body>
 </html>
 
