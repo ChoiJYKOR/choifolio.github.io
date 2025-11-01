@@ -206,6 +206,42 @@ app.get('/api/categories', (req, res) => {
   res.json([]); // 배열 직접 반환
 });
 
+// Books routes
+app.get('/api/books', (req, res) => {
+  res.json({
+    success: true,
+    data: []
+  });
+});
+
+app.get('/api/books/:id', (req, res) => {
+  res.status(404).json({ success: false, message: 'Not found' });
+});
+
+// Projects routes
+app.get('/api/projects', (req, res) => {
+  res.json({
+    success: true,
+    data: []
+  });
+});
+
+app.get('/api/projects/:id', (req, res) => {
+  res.status(404).json({ success: false, message: 'Not found' });
+});
+
+// Experiences routes
+app.get('/api/experiences', (req, res) => {
+  res.json({
+    success: true,
+    data: []
+  });
+});
+
+app.get('/api/experiences/:id', (req, res) => {
+  res.status(404).json({ success: false, message: 'Not found' });
+});
+
 // Image upload (실제 업로드는 나중에 구현)
 app.post('/api/upload/image', (req, res) => {
   res.json({
