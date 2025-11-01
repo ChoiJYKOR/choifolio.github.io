@@ -74,6 +74,7 @@ function App() {
       <SiteSettingsProvider>
         <AuthProvider>
           <Router
+            basename="/choifolio.github.io"
             future={{
               v7_startTransition: true,
               v7_relativeSplatPath: true,
