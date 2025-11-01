@@ -72,9 +72,10 @@ export default defineConfig({
         manualChunks: (id) => {
           // 벤더 라이브러리 청크 분리
           if (id.includes('node_modules')) {
-            // React 관련 라이브러리 (use-sync-external-store 포함)
+            // React 관련 라이브러리 (use-sync-external-store, scheduler, @dnd-kit 포함)
             if (id.includes('react') || id.includes('react-dom') || 
-                id.includes('use-sync-external-store') || id.includes('scheduler')) {
+                id.includes('use-sync-external-store') || id.includes('scheduler') ||
+                id.includes('@dnd-kit')) {
               return 'react-vendor';
             }
             // 라우터 관련 라이브러리
@@ -167,6 +168,9 @@ export default defineConfig({
       'framer-motion',
       'react-icons',
       'axios',
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@dnd-kit/utilities',
     ],
     exclude: ['@vite/client', '@vite/env'],
   },
