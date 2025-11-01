@@ -17,6 +17,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // React 단일 인스턴스 강제 (중복 React 오류 방지)
+      'react': path.resolve(__dirname, './node_modules/react'),
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
     },
   },
   
@@ -69,8 +72,9 @@ export default defineConfig({
         manualChunks: (id) => {
           // 벤더 라이브러리 청크 분리
           if (id.includes('node_modules')) {
-            // React 관련 라이브러리
-            if (id.includes('react') || id.includes('react-dom')) {
+            // React 관련 라이브러리 (use-sync-external-store 포함)
+            if (id.includes('react') || id.includes('react-dom') || 
+                id.includes('use-sync-external-store') || id.includes('scheduler')) {
               return 'react-vendor';
             }
             // 라우터 관련 라이브러리
