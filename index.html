@@ -2,99 +2,25 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    
-    <!-- 파비콘 설정 (포트폴리오 브랜드 아이콘) -->
-    <link rel="icon" type="image/svg+xml" href="/images/favicon-240297b6.svg" />
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIuy1nOyjvOyYgSAtIOqzteyepeyekOuPme2ZlCDtj6ztirjtj7TrpqzsmKQiLAogICJzaG9ydF9uYW1lIjogIuyjvOyYgSDtj6ztirjtj7TrpqzsmKQiLAogICJkZXNjcmlwdGlvbiI6ICLrsJTrpqzsiqTtg4Dsl5DshJwg6rO17J6l7J6Q64+Z7ZmUIOyghOusuOqwgOuhnOydmCDsl6zsoJXsnYQg7Iuc7J6R7ZWcIOy1nOyjvOyYgeydmCDtj6ztirjtj7TrpqzsmKTsnoXri4jri6QuIiwKICAic3RhcnRfdXJsIjogIi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLAogICJ0aGVtZV9jb2xvciI6ICIjZDk3NzA2IiwKICAiaWNvbnMiOiBbXQp9Cg==" />
-    
-    <!-- 뷰포트 및 기본 메타 설정 -->
+    <link rel="icon" type="image/svg+xml" href="/choifolio.github.io/images/favicon-240297b6.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#d97706" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)" />
-    <meta name="color-scheme" content="light dark" />
-    
-    <!-- SEO 최적화 -->
     <title>최주영 - 공장자동화 포트폴리오 | PLC, IoT, 데이터분석 전문가</title>
-    <meta name="description" content="바리스타에서 공장자동화 전문가로의 여정을 시작한 최주영의 포트폴리오입니다. PLC 프로그래밍, IoT 시스템, 데이터 분석 프로젝트를 확인해보세요." />
-    <meta name="keywords" content="공장자동화, PLC, IoT, 데이터분석, 포트폴리오, 최주영, 자동화시스템, 산업자동화" />
-    <meta name="author" content="최주영" />
-    
-    <!-- Open Graph 메타 태그 (소셜 미디어 공유용) -->
-    <meta property="og:title" content="최주영 - 공장자동화 포트폴리오" />
-    <meta property="og:description" content="바리스타에서 공장자동화 전문가로의 여정을 시작한 최주영의 포트폴리오입니다." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://portfolio.example.com" />
-    <meta property="og:site_name" content="최주영 포트폴리오" />
-    
-    <!-- Twitter Card 메타 태그 -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="최주영 - 공장자동화 포트폴리오" />
-    <meta name="twitter:description" content="바리스타에서 공장자동화 전문가로의 여정을 시작한 최주영의 포트폴리오입니다." />
-    
-    <!-- 폰트 최적화 (Preconnect 및 Preload) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- 다크 모드 FOUC 방지 스크립트 -->
-    <script>
-      // React 렌더링 전에 테마를 즉시 적용하여 FOUC 방지
-      (function() {
-        try {
-          const savedTheme = localStorage.getItem('theme');
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          
-          if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-            document.documentElement.classList.add('dark');
-          } else if (savedTheme === 'light') {
-            document.documentElement.classList.remove('dark');
-          }
-        } catch (error) {
-          // localStorage 접근 실패 시 시스템 설정 사용
-          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-          }
-        }
-      })();
-    </script>
-    
-    <!-- 구조화된 데이터 (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "최주영",
-      "jobTitle": "공장자동화 전문가",
-      "description": "바리스타에서 공장자동화 전문가로의 여정을 시작한 최주영의 포트폴리오입니다.",
-      "url": "https://portfolio.example.com",
-      "sameAs": [
-        "https://github.com/username",
-        "https://linkedin.com/in/username"
-      ],
-      "knowsAbout": [
-        "PLC 프로그래밍",
-        "IoT 시스템",
-        "데이터 분석",
-        "공장자동화",
-        "산업자동화"
-      ]
-    }
-    </script>
-    <script type="module" crossorigin src="/js/index-9b030156.js"></script>
-    <link rel="modulepreload" crossorigin href="/js/chunk-ac0f623e.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-75e669a6.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-ace41c66.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-af89a8d3.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-9d2120be.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-82f7c46d.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-bb94124d.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-d615e576.js">
-    <link rel="stylesheet" href="/css/react-vendor-b694d912.css">
-    <link rel="stylesheet" href="/css/components-d0e2247c.css">
-    <link rel="stylesheet" href="/css/index-816f8325.css">
+    <script type="module" crossorigin src="/choifolio.github.io/js/index-cdc3c036.js"></script>
+    <link rel="modulepreload" crossorigin href="/choifolio.github.io/js/chunk-ac0f623e.js">
+    <link rel="modulepreload" crossorigin href="/choifolio.github.io/js/chunk-75e669a6.js">
+    <link rel="modulepreload" crossorigin href="/choifolio.github.io/js/chunk-ace41c66.js">
+    <link rel="modulepreload" crossorigin href="/choifolio.github.io/js/chunk-af89a8d3.js">
+    <link rel="modulepreload" crossorigin href="/choifolio.github.io/js/chunk-9d2120be.js">
+    <link rel="modulepreload" crossorigin href="/choifolio.github.io/js/chunk-34ae5275.js">
+    <link rel="modulepreload" crossorigin href="/choifolio.github.io/js/chunk-ec86f2cb.js">
+    <link rel="modulepreload" crossorigin href="/choifolio.github.io/js/chunk-67b5e66e.js">
+    <link rel="stylesheet" href="/choifolio.github.io/css/react-vendor-b694d912.css">
+    <link rel="stylesheet" href="/choifolio.github.io/css/components-d0e2247c.css">
+    <link rel="stylesheet" href="/choifolio.github.io/css/index-816f8325.css">
   </head>
   <body>
     <div id="root"></div>
     
   </body>
 </html>
+
