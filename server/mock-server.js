@@ -24,7 +24,7 @@ let mockData = {
   videoLearnings: [
     {
       _id: '68e5cbb6e1ddfb950304dcb7',
-      title: '테스트 영상',
+      title: '테스트 영상 - Lexical 형식',
       keyTakeaways: JSON.stringify({
         root: {
           children: [
@@ -41,6 +41,39 @@ let mockData = {
           version: 1
         }
       })
+    },
+    {
+      _id: '68fe247fb55a9564a5101e62',
+      title: '기초 SQL 문법 - 일반 문자열 (JSON.parse 오류 재현용)',
+      keyTakeaways: '기초 SQL 문법', // JSON이 아닌 일반 문자열
+      videoId: 'test123',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      _id: 'test-editorjs-format',
+      title: 'Editor.js 형식 테스트',
+      keyTakeaways: JSON.stringify({
+        blocks: [
+          {
+            type: 'paragraph',
+            data: {
+              text: 'Editor.js 형식의 내용입니다.'
+            }
+          }
+        ]
+      }),
+      videoId: 'test456',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      _id: 'test-empty-keytakeaways',
+      title: '빈 핵심 배움 테스트',
+      keyTakeaways: '',
+      videoId: 'test789',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
   ],
   auth: { user: null }

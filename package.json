@@ -7,6 +7,8 @@
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "dev:client": "vite",
     "dev:server": "nodemon server/index.js",
+    "dev:mock": "concurrently \"npm run dev:client\" \"npm run mock:server\"",
+    "mock:server": "node server/mock-server.js",
     "build": "vite build && npm run copy:404",
     "copy:404": "cp 404.html dist/404.html 2>/dev/null || copy 404.html dist\\404.html 2>nul || echo '404.html 복사 실패 (수동으로 복사해주세요)'",
     "preview": "vite preview",
