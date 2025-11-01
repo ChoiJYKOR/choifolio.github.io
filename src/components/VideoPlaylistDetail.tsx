@@ -522,9 +522,23 @@ const VideoPlaylistDetail: React.FC = () => {
                         className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed"
                         dangerouslySetInnerHTML={{ 
                           __html: activeVideo.keyTakeaways 
-                            ? (isLexicalData(JSON.parse(activeVideo.keyTakeaways)) 
-                                ? renderLexicalData(activeVideo.keyTakeaways)
-                                : renderEditorJSData(activeVideo.keyTakeaways))
+                            ? (() => {
+                                try {
+                                  const parsed = JSON.parse(activeVideo.keyTakeaways)
+                                  if (isLexicalData(parsed)) {
+                                    return renderLexicalData(activeVideo.keyTakeaways)
+                                  }
+                                  // Editor.js 형식인지 확인
+                                  if (parsed && parsed.blocks) {
+                                    return renderEditorJSData(activeVideo.keyTakeaways)
+                                  }
+                                  // JSON이 아니거나 다른 형식인 경우 원본 문자열 반환
+                                  return activeVideo.keyTakeaways
+                                } catch {
+                                  // JSON 파싱 실패 시 원본 문자열 반환
+                                  return activeVideo.keyTakeaways
+                                }
+                              })()
                             : ''
                         }}
                         onClick={(e) => {
