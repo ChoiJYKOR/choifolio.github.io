@@ -45,9 +45,31 @@ import {
 
 // 환경 변수에서 API URL 가져오기 (개발/운영 환경 대응)
 // Vite에서는 import.meta.env를 사용
-// 개발 환경에서는 Vite 프록시 사용 (/api), 프로덕션에서는 직접 연결
-const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || 
-  (import.meta.env.DEV ? '/api' : 'http://localhost:5000/api')
+// 개발 환경에서는 Vite 프록시 사용 (/api), 프로덕션에서는 Render 백엔드 URL 사용
+const getApiBaseUrl = () => {
+  // 환경 변수로 직접 지정된 경우 우선 사용
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL as string
+  }
+  
+  // 개발 환경: Vite 프록시 사용
+  if (import.meta.env.DEV) {
+    return '/api'
+  }
+  
+  // 프로덕션 환경: Render 백엔드 URL 사용
+  // 현재 도메인을 기반으로 백엔드 URL 추론
+  const hostname = window.location.hostname
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    // 로컬 프로덕션 빌드인 경우
+    return 'http://localhost:5000/api'
+  }
+  
+  // GitHub Pages에서 접근하는 경우 Render 백엔드 URL 사용
+  return 'https://choifolio-github-io-backend.onrender.com/api'
+}
+
+const API_BASE_URL = getApiBaseUrl()
 
 const api = axios.create({
   baseURL: API_BASE_URL,
