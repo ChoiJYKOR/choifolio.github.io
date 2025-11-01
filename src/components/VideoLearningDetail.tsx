@@ -322,15 +322,15 @@ const VideoLearningDetail: React.FC = () => {
         {/* 2단 레이아웃 컨테이너 */}
         <div className="flex flex-col lg:flex-row gap-6">
           
-          {/* ========== 왼쪽 영역: 플레이어 + 기본 정보 ========== */}
-          <div className="w-full lg:w-7/12 lg:sticky lg:top-8 self-start">
+          {/* ========== 왼쪽 영역: 플레이어 + 핵심 배움 ========== */}
+          <div className="w-full lg:w-7/12 space-y-6">
             
             {/* 유튜브 플레이어 */}
             {videoId && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6"
+                className="lg:sticky lg:top-8 self-start"
               >
                 <div className="aspect-video rounded-xl overflow-hidden shadow-2xl bg-black relative">
                   <div 
@@ -346,13 +346,13 @@ const VideoLearningDetail: React.FC = () => {
               </motion.div>
             )}
 
-            {/* 핵심 배움 */}
+            {/* 핵심 배움 - 플레이어 바로 아래 */}
             {(video.keyTakeaways || isAuthenticated) && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="card p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-l-4 border-blue-600 mb-6"
+                className="card p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-l-4 border-blue-600"
               >
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
