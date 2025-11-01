@@ -386,9 +386,23 @@ const VideoLearningDetail: React.FC = () => {
                           className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"
                           dangerouslySetInnerHTML={{ 
                             __html: video.keyTakeaways 
-                              ? (isLexicalData(JSON.parse(video.keyTakeaways)) 
-                                  ? renderLexicalData(video.keyTakeaways)
-                                  : renderEditorJSData(video.keyTakeaways))
+                              ? (() => {
+                                  try {
+                                    const parsed = JSON.parse(video.keyTakeaways)
+                                    if (isLexicalData(parsed)) {
+                                      return renderLexicalData(video.keyTakeaways)
+                                    }
+                                    // Editor.js 형식인지 확인
+                                    if (parsed && parsed.blocks) {
+                                      return renderEditorJSData(video.keyTakeaways)
+                                    }
+                                    // JSON이 아니거나 다른 형식인 경우 원본 문자열 반환
+                                    return video.keyTakeaways
+                                  } catch {
+                                    // JSON 파싱 실패 시 원본 문자열 반환
+                                    return video.keyTakeaways
+                                  }
+                                })()
                               : ''
                           }}
                           onClick={(e) => {
