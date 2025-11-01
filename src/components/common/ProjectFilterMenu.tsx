@@ -68,7 +68,7 @@ const ProjectFilterMenu: React.FC<ProjectFilterMenuProps> = ({ filterGroup, coun
               className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">카테고리 선택</option>
-              {data.categories.map((category) => (
+              {Array.isArray(data.categories) && data.categories.map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>
