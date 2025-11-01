@@ -208,6 +208,7 @@ app.get('/api/categories', (req, res) => {
 
 // Books routes
 app.get('/api/books', (req, res) => {
+  console.log('📚 GET /api/books 요청 받음');
   res.json({
     success: true,
     data: []
@@ -220,6 +221,7 @@ app.get('/api/books/:id', (req, res) => {
 
 // Projects routes
 app.get('/api/projects', (req, res) => {
+  console.log('📁 GET /api/projects 요청 받음');
   res.json({
     success: true,
     data: []
@@ -232,6 +234,7 @@ app.get('/api/projects/:id', (req, res) => {
 
 // Experiences routes
 app.get('/api/experiences', (req, res) => {
+  console.log('💼 GET /api/experiences 요청 받음');
   res.json({
     success: true,
     data: []
@@ -250,7 +253,7 @@ app.post('/api/upload/image', (req, res) => {
   });
 });
 
-// Error handler
+// Error handler (4개의 인자를 가져야 Express가 에러 핸들러로 인식)
 app.use((err, req, res, next) => {
   console.error('Mock server error:', err);
   res.status(500).json({
@@ -259,9 +262,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
+// 404 handler - 모든 라우트 정의 후에 배치
 app.use((req, res) => {
-  res.status(404).json({ message: 'Not found' });
+  console.log(`⚠️  404 Not Found: ${req.method} ${req.path}`);
+  res.status(404).json({ message: 'Not found', path: req.path });
 });
 
 app.listen(PORT, () => {
