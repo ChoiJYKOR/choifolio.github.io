@@ -387,6 +387,18 @@ const VideoLearningDetail: React.FC = () => {
                           dangerouslySetInnerHTML={{ 
                             __html: video.keyTakeaways 
                               ? (() => {
+                                  // keyTakeaways가 빈 문자열이면 빈 문자열 반환
+                                  if (!video.keyTakeaways || typeof video.keyTakeaways !== 'string') {
+                                    return ''
+                                  }
+                                  
+                                  // JSON 형식인지 먼저 확인 (시작이 '{' 또는 '['로 시작하는지)
+                                  const trimmed = video.keyTakeaways.trim()
+                                  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+                                    // JSON이 아닌 일반 문자열인 경우 그대로 반환
+                                    return video.keyTakeaways
+                                  }
+                                  
                                   try {
                                     const parsed = JSON.parse(video.keyTakeaways)
                                     if (isLexicalData(parsed)) {
@@ -396,10 +408,11 @@ const VideoLearningDetail: React.FC = () => {
                                     if (parsed && parsed.blocks) {
                                       return renderEditorJSData(video.keyTakeaways)
                                     }
-                                    // JSON이 아니거나 다른 형식인 경우 원본 문자열 반환
+                                    // 파싱은 성공했지만 예상한 형식이 아닌 경우 원본 문자열 반환
                                     return video.keyTakeaways
-                                  } catch {
+                                  } catch (e) {
                                     // JSON 파싱 실패 시 원본 문자열 반환
+                                    console.warn('keyTakeaways JSON 파싱 실패:', e, video.keyTakeaways)
                                     return video.keyTakeaways
                                   }
                                 })()
