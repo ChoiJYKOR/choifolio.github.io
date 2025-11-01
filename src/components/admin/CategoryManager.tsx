@@ -243,9 +243,9 @@ const CategoryManager: React.FC = () => {
 
       {/* 카테고리 목록 - 드래그 앤 드롭 */}
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={categories.map(c => c._id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={Array.isArray(categories) ? categories.map(c => c._id) : []} strategy={verticalListSortingStrategy}>
           <div className="grid gap-4">
-            {categories.map((category) => (
+            {Array.isArray(categories) && categories.map((category) => (
               <SortableCategoryCard
                 key={category._id}
                 category={category}
