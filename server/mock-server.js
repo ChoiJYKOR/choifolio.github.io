@@ -118,11 +118,9 @@ app.get('/api/settings', (req, res) => {
 });
 
 // Skills routes
+// /api/skills는 배열을 직접 반환해야 함 (api.get<Skill[]> 형식)
 app.get('/api/skills', (req, res) => {
-  res.json({
-    success: true,
-    data: []
-  });
+  res.json([]); // 배열 직접 반환
 });
 
 app.get('/api/skill-categories', (req, res) => {
@@ -188,6 +186,26 @@ app.delete('/api/video-learnings/:id', (req, res) => {
   } else {
     res.status(404).json({ success: false, message: 'Not found' });
   }
+});
+
+// Video Playlist routes
+app.get('/api/video-playlists', (req, res) => {
+  res.json({
+    success: true,
+    data: []
+  });
+});
+
+app.get('/api/video-playlists/:id', (req, res) => {
+  res.status(404).json({ success: false, message: 'Not found' });
+});
+
+// Categories routes
+app.get('/api/categories', (req, res) => {
+  res.json({
+    success: true,
+    data: []
+  });
 });
 
 // Image upload (실제 업로드는 나중에 구현)
