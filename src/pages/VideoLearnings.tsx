@@ -46,7 +46,9 @@ const VideoLearnings: React.FC = () => {
   }, [])
   
   // 🌟 카테고리 데이터 가져오기
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories()
+  const { data: categoriesData, isLoading: categoriesLoading } = useCategories()
+  // categories가 배열이 아닌 경우를 대비한 안전 처리
+  const categories = Array.isArray(categoriesData) ? categoriesData : []
 
   // 🌟 개별 영상 필터링 로직 (categoryIds 배열 기반)
   const filteredVideos = useMemo(() => {

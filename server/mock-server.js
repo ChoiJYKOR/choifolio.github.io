@@ -201,11 +201,9 @@ app.get('/api/video-playlists/:id', (req, res) => {
 });
 
 // Categories routes
+// /api/categories는 배열을 직접 반환해야 함 (api.get<Category[]> 형식)
 app.get('/api/categories', (req, res) => {
-  res.json({
-    success: true,
-    data: []
-  });
+  res.json([]); // 배열 직접 반환
 });
 
 // Image upload (실제 업로드는 나중에 구현)
