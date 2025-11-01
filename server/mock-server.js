@@ -94,14 +94,29 @@ app.post('/api/auth/verify', (req, res) => {
 });
 
 app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  if (email === 'admin@test.com' && password === 'admin') {
+  console.log('🔐 POST /api/auth/login 요청 받음:', req.body);
+  // username 또는 email 둘 다 지원
+  const { username, email, password } = req.body;
+  const loginId = username || email;
+  
+  // 테스트 계정: username/email이 'admin' 또는 'admin@test.com'이고 password가 'admin'
+  const isValidCredentials = 
+    (loginId === 'admin' || loginId === 'admin@test.com') && 
+    password === 'admin';
+  
+  if (isValidCredentials) {
+    console.log('✅ 로그인 성공');
     res.json({ 
       success: true, 
-      user: { email: 'admin@test.com', role: 'admin' },
+      user: { 
+        email: 'admin@test.com', 
+        username: 'admin',
+        role: 'admin' 
+      },
       token: 'mock-token'
     });
   } else {
+    console.log('❌ 로그인 실패:', { loginId, passwordProvided: !!password });
     res.status(401).json({ success: false, message: 'Invalid credentials' });
   }
 });
