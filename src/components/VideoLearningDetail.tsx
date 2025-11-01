@@ -48,7 +48,17 @@ const VideoLearningDetail: React.FC = () => {
   
   // keyTakeaways 문자열을 SerializedEditorState로 변환
   const parseKeyTakeaways = (value: string | undefined): SerializedEditorState => {
-    if (!value) return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+    if (!value || typeof value !== 'string') {
+      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+    }
+    
+    // JSON 형식인지 먼저 확인 (시작이 '{' 또는 '['로 시작하는지)
+    const trimmed = value.trim()
+    if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+      // JSON이 아닌 일반 문자열인 경우 빈 에디터 상태 반환
+      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+    }
+    
     try {
       const parsed = JSON.parse(value)
       if (parsed && parsed.root) return parsed
@@ -58,7 +68,9 @@ const VideoLearningDetail: React.FC = () => {
         return parsed as any
       }
       return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
-    } catch {
+    } catch (e) {
+      // JSON 파싱 실패 시 빈 에디터 상태 반환
+      console.warn('parseKeyTakeaways JSON 파싱 실패:', e, value)
       return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
     }
   }

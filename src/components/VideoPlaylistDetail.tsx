@@ -52,7 +52,17 @@ const VideoPlaylistDetail: React.FC = () => {
   
   // keyTakeaways 문자열을 SerializedEditorState로 변환
   const parseKeyTakeaways = (value: string | undefined): SerializedEditorState => {
-    if (!value) return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+    if (!value || typeof value !== 'string') {
+      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+    }
+    
+    // JSON 형식인지 먼저 확인 (시작이 '{' 또는 '['로 시작하는지)
+    const trimmed = value.trim()
+    if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+      // JSON이 아닌 일반 문자열인 경우 빈 에디터 상태 반환
+      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+    }
+    
     try {
       const parsed = JSON.parse(value)
       if (parsed && parsed.root) return parsed
@@ -61,7 +71,9 @@ const VideoPlaylistDetail: React.FC = () => {
         return parsed as any
       }
       return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
-    } catch {
+    } catch (e) {
+      // JSON 파싱 실패 시 빈 에디터 상태 반환
+      console.warn('parseKeyTakeaways JSON 파싱 실패:', e, value)
       return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
     }
   }
@@ -523,6 +535,17 @@ const VideoPlaylistDetail: React.FC = () => {
                         dangerouslySetInnerHTML={{ 
                           __html: activeVideo.keyTakeaways 
                             ? (() => {
+                                if (!activeVideo.keyTakeaways || typeof activeVideo.keyTakeaways !== 'string') {
+                                  return ''
+                                }
+                                
+                                // JSON 형식인지 먼저 확인 (시작이 '{' 또는 '['로 시작하는지)
+                                const trimmed = activeVideo.keyTakeaways.trim()
+                                if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+                                  // JSON이 아닌 일반 문자열인 경우 그대로 반환
+                                  return activeVideo.keyTakeaways
+                                }
+                                
                                 try {
                                   const parsed = JSON.parse(activeVideo.keyTakeaways)
                                   if (isLexicalData(parsed)) {
@@ -532,10 +555,11 @@ const VideoPlaylistDetail: React.FC = () => {
                                   if (parsed && parsed.blocks) {
                                     return renderEditorJSData(activeVideo.keyTakeaways)
                                   }
-                                  // JSON이 아니거나 다른 형식인 경우 원본 문자열 반환
+                                  // 파싱은 성공했지만 예상한 형식이 아닌 경우 원본 문자열 반환
                                   return activeVideo.keyTakeaways
-                                } catch {
+                                } catch (e) {
                                   // JSON 파싱 실패 시 원본 문자열 반환
+                                  console.warn('keyTakeaways JSON 파싱 실패:', e, activeVideo.keyTakeaways)
                                   return activeVideo.keyTakeaways
                                 }
                               })()
