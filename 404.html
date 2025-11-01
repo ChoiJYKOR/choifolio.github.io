@@ -6,7 +6,16 @@
     <script>
       // GitHub Pages SPA 404 리디렉션 해결
       // 현재 경로를 sessionStorage에 저장하고 루트로 이동
-      sessionStorage.setItem('redirectPath', location.pathname + location.search + location.hash);
+      var path = location.pathname + location.search + location.hash;
+      // 서브패스 제거 (/choifolio.github.io 제거하여 React Router basename과 일치시키기)
+      if (path.startsWith('/choifolio.github.io')) {
+        path = path.replace('/choifolio.github.io', '');
+      }
+      // 루트 경로는 빈 문자열로 처리
+      if (path === '/') {
+        path = '';
+      }
+      sessionStorage.setItem('redirectPath', path);
       location.replace(location.origin + '/choifolio.github.io/');
     </script>
   </head>
