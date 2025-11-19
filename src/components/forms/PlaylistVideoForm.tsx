@@ -98,6 +98,16 @@ const PlaylistVideoForm: React.FC<FormProps> = ({
                 src={thumbnailUrl} 
                 alt="영상 썸네일" 
                 className="w-full max-w-xs rounded-lg shadow-md"
+                onError={(e) => {
+                  // maxresdefault 실패 시 hqdefault로 fallback
+                  const target = e.target as HTMLImageElement
+                  if (target.src.includes('maxresdefault')) {
+                    target.src = target.src.replace('maxresdefault', 'hqdefault')
+                  } else {
+                    // 모든 썸네일 실패 시 빈 이미지로 처리
+                    target.style.display = 'none'
+                  }
+                }}
               />
             </div>
           )}

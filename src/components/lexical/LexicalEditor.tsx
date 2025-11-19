@@ -34,25 +34,72 @@ const UpdateStatePlugin = ({ value, forceUpdate }: { value: string | SerializedE
   const [editor] = useLexicalComposerContext()
   
   useEffect(() => {
-    if (!value) return
+    if (!value) {
+      // value가 null이면 아무것도 하지 않음 (기본 상태 유지)
+      return
+    }
     
-    let parsedValue: any
-    if (typeof value === 'string') {
-      try {
-        parsedValue = JSON.parse(value)
-      } catch {
-        console.error('Failed to parse value:', value)
+    // 에디터가 준비될 때까지 약간의 지연 추가
+    const timeoutId = setTimeout(() => {
+      let parsedValue: any
+      if (typeof value === 'string') {
+        try {
+          parsedValue = JSON.parse(value)
+        } catch (e) {
+          console.error('Failed to parse value:', value, e)
+          return
+        }
+      } else {
+        parsedValue = value
+      }
+      
+      // Lexical 형식 검증: root가 있고 root.type이 'root'인지 확인
+      if (!parsedValue || !parsedValue.root || parsedValue.root.type !== 'root') {
+        console.warn('Invalid Lexical state format: missing or invalid root', parsedValue)
         return
       }
-    } else {
-      parsedValue = value
-    }
+      
+      // root.children이 배열인지 확인
+      if (!Array.isArray(parsedValue.root.children)) {
+        console.warn('Invalid Lexical state: root.children is not an array', parsedValue)
+        return
+      }
+      
+      // root.version 확인 (Lexical 버전 호환성)
+      if (parsedValue.root.version === undefined || parsedValue.root.version === null) {
+        console.warn('Invalid Lexical state: missing root.version', parsedValue)
+        return
+      }
+      
+      // root.direction 확인
+      if (parsedValue.root.direction !== 'ltr' && parsedValue.root.direction !== 'rtl') {
+        console.warn('Invalid Lexical state: invalid root.direction', parsedValue)
+        return
+      }
+      
+      try {
+        console.log('🔄 에디터 상태 업데이트:', parsedValue)
+        // parseEditorState를 사용하여 안전하게 파싱
+        const editorState = editor.parseEditorState(parsedValue)
+        // setEditorState를 사용하여 상태 설정
+        editor.setEditorState(editorState)
+      } catch (error) {
+        console.error('❌ Failed to set editor state (Lexical error #38):', error)
+        console.error('Problematic state:', parsedValue)
+        // 에러 발생 시 에디터를 빈 상태로 초기화
+        try {
+          const emptyState = editor.parseEditorState({
+            root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 }
+          })
+          editor.setEditorState(emptyState)
+          console.log('✅ Editor reset to empty state')
+        } catch (fallbackError) {
+          console.error('❌ Failed to reset editor to empty state:', fallbackError)
+        }
+      }
+    }, 100) // 에디터 초기화를 위한 충분한 지연
     
-    if (parsedValue && parsedValue.root) {
-      console.log('🔄 에디터 상태 업데이트:', parsedValue)
-      const editorState = editor.parseEditorState(parsedValue)
-      editor.setEditorState(editorState)
-    }
+    return () => clearTimeout(timeoutId)
   }, [forceUpdate, editor]) // value 대신 forceUpdate를 dependency로 사용
   
   return null

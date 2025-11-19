@@ -275,6 +275,16 @@ const VideoLearnings: React.FC = () => {
                         decoding="async"
                         width="640"
                         height="360"
+                        onError={(e) => {
+                          // maxresdefault 실패 시 hqdefault로 fallback
+                          const target = e.target as HTMLImageElement
+                          if (target.src.includes('maxresdefault')) {
+                            target.src = target.src.replace('maxresdefault', 'hqdefault')
+                          } else {
+                            // 모든 썸네일 실패 시 빈 이미지로 처리
+                            target.style.display = 'none'
+                          }
+                        }}
                       />
                       <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
                       <div className="absolute top-2 right-2 bg-red-600 px-2 py-1 rounded text-white text-xs font-bold">
