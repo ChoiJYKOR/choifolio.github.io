@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   FaSave, 
   FaPlus, 
@@ -15,13 +15,13 @@ import {
   FaLaptopCode,    // 💻 프로그래밍
   FaBars           // 🌟 드래그 핸들 아이콘
 } from 'react-icons/fa'
-import { Experience, ExperienceFormData, ExperienceDetail, Skill, SkillCategory } from '../../types'
+import { Experience, ExperienceFormData, ExperienceDetail } from '../../types'
 import RichTextEditor from '../RichTextEditor'
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useSkills } from '../../hooks/useSkills'
 import LanguageTabs, { AdminLanguage } from '../common/LanguageTabs'
+import { useTranslation } from 'react-i18next'
 
 // 🌟 아이콘 옵션 정의
 const iconOptions = [
@@ -140,50 +140,54 @@ interface FormProps {
 
 const ExperienceForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = false }) => {
   const [currentLang, setCurrentLang] = useState<AdminLanguage>('ko')
+  const { t, i18n } = useTranslation()
+  const adminLang = i18n.language as 'ko' | 'en' | 'ja'
   
-  // 🌟 스킬 목록 가져오기
-  const { skillCategories, loading: skillsLoading } = useSkills()
-  
-  // 🌟 skillIds 초기값 처리 (객체 또는 문자열 모두 처리)
-  const initialSkillIds = data?.skillIds 
-    ? (data.skillIds as any[]).map((skillIdOrObj: any) => 
-        typeof skillIdOrObj === 'string' ? skillIdOrObj : skillIdOrObj?._id
-      ).filter(Boolean) as string[]
-    : []
-  
-  // 초기 formData 설정 (iconKey 포함, details에 order 호환성 처리)
-  const initialFormData: ExperienceFormData = data ? {
-    ...data,
-    iconKey: data.iconKey || 'FaBriefcase',
-    // 🌟 기존 데이터 호환성: details에 order가 없으면 인덱스를 기본값으로 설정
-    details: (data.details || []).map((detail, index) => ({
-      ...detail,
-      order: detail.order ?? index
-    })),
-    skills: data.skills || [],
-    skillsEn: data.skillsEn || [],
-    skillsJa: data.skillsJa || [],
-    skillIds: initialSkillIds  // 🌟 스킬 ID 문자열 배열로 초기화
-  } : {
-    period: '',
-    title: '',
-    company: '',
-    description: '',
-    details: [],
-    skills: [],
-    skillsEn: [],
-    skillsJa: [],
-    skillIds: [],  // 🌟 스킬 ID 초기값
-    order: 0,
-    iconKey: 'FaBriefcase'
+  // 초기 formData 설정 함수 (iconKey 포함, details에 order 호환성 처리)
+  const getInitialFormData = (): ExperienceFormData => {
+    if (data) {
+      return {
+        ...data,
+        iconKey: data.iconKey || 'FaBriefcase',
+        // 🌟 기존 데이터 호환성: details에 order가 없으면 인덱스를 기본값으로 설정
+        details: (data.details || []).map((detail, index) => ({
+          ...detail,
+          order: detail.order ?? index
+        })),
+        skills: data.skills || [],
+        skillsEn: data.skillsEn || [],
+        skillsJa: data.skillsJa || []
+      }
+    }
+    return {
+      period: '',
+      title: '',
+      company: '',
+      description: '',
+      details: [],
+      skills: [],
+      skillsEn: [],
+      skillsJa: [],
+      order: 0,
+      iconKey: 'FaBriefcase'
+    }
   }
   
-  const [formData, setFormData] = useState<ExperienceFormData>(initialFormData)
+  const [formData, setFormData] = useState<ExperienceFormData>(getInitialFormData())
   
   // 기술 입력을 위한 별도 상태 (입력 중에는 문자열로 유지)
   const [skillsInput, setSkillsInput] = useState<string>(
     Array.isArray(formData.skills) ? formData.skills.join(', ') : ''
   )
+  
+  // 🌟 data prop 변경 시 formData 자동 업데이트
+  useEffect(() => {
+    const newFormData = getInitialFormData()
+    setFormData(newFormData)
+    // skillsInput도 함께 업데이트
+    const skills = data?.skills || []
+    setSkillsInput(Array.isArray(skills) ? skills.join(', ') : '')
+  }, [data?._id]) // _id가 변경되면 새로운 경력 데이터로 간주
   
   // 🌟 카테고리별 상세 내용 관리 상태
   const [editingCategoryIndex, setEditingCategoryIndex] = useState<number | null>(null)
@@ -202,42 +206,6 @@ const ExperienceForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving 
     contentEn: '',
     contentJa: ''
   })
-  
-  // 🌟 스킬 선택/해제 핸들러 (체크박스용)
-  const handleSkillToggle = (skillId: string) => {
-    const currentSkillIds = formData.skillIds || []
-    const isSelected = currentSkillIds.includes(skillId)
-    
-    const newSkillIds = isSelected
-      ? currentSkillIds.filter((id: string) => id !== skillId)
-      : [...currentSkillIds, skillId]
-    
-    setFormData({ 
-      ...formData, 
-      skillIds: newSkillIds 
-    })
-  }
-  
-  // 🌟 스킬 카테고리 전체 선택/해제 핸들러
-  const handleSkillCategoryToggle = (category: SkillCategory) => {
-    const categorySkillIds = (category.skills || []).map(skill => skill._id!).filter(Boolean)
-    const currentSkillIds = formData.skillIds || []
-    
-    const allSelected = categorySkillIds.every((id: string) => currentSkillIds.includes(id))
-    
-    let newSkillIds: string[]
-    if (allSelected) {
-      newSkillIds = currentSkillIds.filter((id: string) => !categorySkillIds.includes(id))
-    } else {
-      const uniqueIds = new Set([...currentSkillIds, ...categorySkillIds])
-      newSkillIds = Array.from(uniqueIds)
-    }
-    
-    setFormData({ 
-      ...formData, 
-      skillIds: newSkillIds 
-    })
-  }
   
   // 🌟 카테고리별 상세 내용 관리 함수들
   const addDetailCategory = () => {
@@ -366,13 +334,6 @@ const ExperienceForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving 
     // 제출 시 최신 기술 배열을 포함하여 저장 (호환성 유지)
     const skillsArray = skillsInput.split(',').map((s) => s.trim()).filter(s => s.length > 0)
     
-    // 🌟 skillIds를 문자열 배열로 확실하게 변환 + 중복 제거
-    const skillIds = Array.from(new Set(
-      (formData.skillIds || []).map((skillIdOrObj: any) => 
-        typeof skillIdOrObj === 'string' ? skillIdOrObj : skillIdOrObj?._id
-      ).filter(Boolean)
-    ))
-    
     // 🌟 details 배열의 각 항목에 order 값 할당 (현재 배열 순서 기준)
     const orderedDetails = (formData.details || []).map((detail, index) => ({
       ...detail,
@@ -382,11 +343,9 @@ const ExperienceForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving 
     const finalFormData = { 
       ...formData, 
       skills: skillsArray,  // 🔄 호환성 유지
-      skillIds,  // 🌟 스킬 ID 배열
       details: orderedDetails
     }
     
-    console.log('📤 경력 저장 데이터:', finalFormData)
     onSave(finalFormData)
   }
 
@@ -652,124 +611,10 @@ const ExperienceForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving 
         )}
       </div>
       
+      {/* 기술 입력 필드 (다국어 지원) */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          설명 (리치텍스트 에디터) - 선택사항
-        </label>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-          💡 위의 "카테고리별 상세 내용"을 사용하면 더 체계적으로 정리됩니다. 이 필드는 하위 호환성을 위해 유지됩니다.
-        </p>
-        <RichTextEditor
-          value={formData.description || ''}
-          onChange={(value) => setFormData({ ...formData, description: value })}
-          placeholder="(선택사항) 전체적인 설명을 작성하거나, 위의 카테고리별 입력을 사용하세요."
-          rows={4}
-          className="min-h-[150px]"
-        />
-      </div>
-      {/* 🌟 스킬 연결 (체크박스) */}
-      <div className="md:col-span-2">
-        <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            이 경력에서 사용한 스킬 🔗
-          </label>
-          {formData.skillIds && formData.skillIds.length > 0 && (
-            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
-              ✓ {formData.skillIds.length}개 선택됨
-            </span>
-          )}
-        </div>
-        
-        {skillsLoading ? (
-          <div className="text-sm text-gray-500 dark:text-gray-400 py-2">
-            스킬 목록을 불러오는 중입니다...
-          </div>
-        ) : skillCategories.length === 0 ? (
-          <div className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center border border-gray-300 dark:border-gray-600 rounded-lg">
-            등록된 스킬이 없습니다. 먼저 스킬을 추가해주세요.
-          </div>
-        ) : (
-          <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800 max-h-[400px] overflow-y-auto">
-            {skillCategories.map((category: SkillCategory) => {
-              const categorySkillIds = (category.skills || []).map(skill => skill._id!).filter(Boolean)
-              const currentSkillIds = formData.skillIds || []
-              const selectedCount = categorySkillIds.filter(id => currentSkillIds.includes(id)).length
-              const allSelected = categorySkillIds.length > 0 && selectedCount === categorySkillIds.length
-              const someSelected = selectedCount > 0 && selectedCount < categorySkillIds.length
-              
-              return (
-                <div key={category._id} className="mb-4 last:mb-0">
-                  {/* 카테고리 헤더 (전체 선택/해제) */}
-                  <div 
-                    className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded"
-                    onClick={() => handleSkillCategoryToggle(category)}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={allSelected}
-                      ref={el => {
-                        if (el) {
-                          el.indeterminate = someSelected
-                        }
-                      }}
-                      onChange={() => handleSkillCategoryToggle(category)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <label 
-                      className="font-semibold text-gray-900 dark:text-white flex-1 cursor-pointer"
-                      style={{ color: category.color || '#3B82F6' }}
-                    >
-                      {category.title}
-                      {selectedCount > 0 && (
-                        <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400">
-                          ({selectedCount}/{categorySkillIds.length})
-                        </span>
-                      )}
-                    </label>
-                  </div>
-                  
-                  {/* 스킬 목록 */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 pl-6">
-                    {(category.skills || []).map((skill: Skill) => {
-                      const isSelected = (formData.skillIds || []).includes(skill._id!)
-                      
-                      return (
-                        <label
-                          key={skill._id}
-                          className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
-                            isSelected 
-                              ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700' 
-                              : 'hover:bg-gray-100 dark:hover:bg-gray-700 border border-transparent'
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => handleSkillToggle(skill._id!)}
-                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                          />
-                          <span className={`text-sm ${isSelected ? 'font-semibold text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'}`}>
-                            {skill.name}
-                          </span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-        
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-          💡 체크박스를 클릭하여 경력에서 사용한 스킬을 선택하세요. 카테고리 제목을 클릭하면 전체 선택/해제할 수 있습니다.
-        </p>
-      </div>
-      
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          기술 (쉼표로 구분) - 선택사항
+          {t('admin.experience.skillsInput')}
         </label>
         <input
           type="text"
@@ -781,10 +626,10 @@ const ExperienceForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving 
             setFormData({ ...formData, skills: skillsArray })
           }}
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          placeholder="PLC 프로그래밍, Python, 데이터 분석"
+          placeholder={adminLang === 'ko' ? 'PLC 프로그래밍, Python, 데이터 분석' : adminLang === 'en' ? 'PLC Programming, Python, Data Analysis' : 'PLCプログラミング、Python、データ分析'}
         />
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          💡 위의 스킬 체크박스를 사용하는 것을 권장합니다. 이 필드는 하위 호환성을 위해 유지됩니다.
+          {t('admin.experience.skillsInputHint')}
         </p>
       </div>
       {/* 🌟 최종 저장 안내 (카테고리 입력 중일 때) */}

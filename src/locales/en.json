@@ -107,6 +107,12 @@
     "adminLogin": "Admin Login",
     "nativeLanguage": "Native",
     "noSkillData": "No skill data available"
+  },
+  "admin": {
+    "experience": {
+      "skillsInput": "Skills (comma-separated) - Optional",
+      "skillsInputHint": "💡 It is recommended to use the skill checkboxes above. This field is maintained for backward compatibility."
+    }
   }
 }
 

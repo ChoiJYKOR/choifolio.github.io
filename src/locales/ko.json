@@ -107,6 +107,12 @@
     "adminLogin": "관리자 로그인",
     "nativeLanguage": "모국어",
     "noSkillData": "스킬 데이터가 없습니다."
+  },
+  "admin": {
+    "experience": {
+      "skillsInput": "기술 (쉼표로 구분) - 선택사항",
+      "skillsInputHint": "💡 위의 스킬 체크박스를 사용하는 것을 권장합니다. 이 필드는 하위 호환성을 위해 유지됩니다."
+    }
   }
 }
 

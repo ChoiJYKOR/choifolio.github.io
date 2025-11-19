@@ -107,6 +107,12 @@
     "adminLogin": "管理者ログイン",
     "nativeLanguage": "母国語",
     "noSkillData": "スキルデータがありません。"
+  },
+  "admin": {
+    "experience": {
+      "skillsInput": "スキル（カンマ区切り） - オプション",
+      "skillsInputHint": "💡 上記のスキルチェックボックスの使用を推奨します。このフィールドは下位互換性のために維持されています。"
+    }
   }
 }
 
