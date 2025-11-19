@@ -288,7 +288,7 @@ const Sidebar: React.FC<SidebarProps> = ({ darkMode, toggleDarkMode, onLoginClic
                           {skillName}
                         </span>
                         <span className="text-xs font-bold text-coffee-600 dark:text-coffee-400">
-                          {isNative ? '모국어' : `${skill.level}%`}
+                          {isNative ? t('sidebar.nativeLanguage') : `${skill.level}%`}
                         </span>
                       </div>
                     )
@@ -301,7 +301,7 @@ const Sidebar: React.FC<SidebarProps> = ({ darkMode, toggleDarkMode, onLoginClic
           {/* Core Skills Progress */}
           <div>
             <h3 className="text-lg font-bold text-dark-900 dark:text-cream-100 mb-4">
-              핵심 기술
+              {t('sidebar.coreSkills')}
             </h3>
             <div className="space-y-4">
               {isLoadingSkills ? (
@@ -343,7 +343,7 @@ const Sidebar: React.FC<SidebarProps> = ({ darkMode, toggleDarkMode, onLoginClic
                 // 데이터가 없을 때
                 <div className="text-center py-8">
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    스킬 데이터가 없습니다.
+                    {t('sidebar.noSkillData')}
                   </p>
                 </div>
               )}
@@ -353,7 +353,7 @@ const Sidebar: React.FC<SidebarProps> = ({ darkMode, toggleDarkMode, onLoginClic
           {/* Navigation */}
           <nav>
             <h3 className="text-lg font-bold text-dark-900 dark:text-cream-100 mb-4">
-              메뉴
+              {t('sidebar.menu')}
             </h3>
             <ul className="space-y-2">
               {navItems.map((item) => (
@@ -389,7 +389,7 @@ const Sidebar: React.FC<SidebarProps> = ({ darkMode, toggleDarkMode, onLoginClic
           {/* Social Links */}
           <div>
             <h3 className="text-lg font-bold text-dark-900 dark:text-cream-100 mb-4">
-              소셜
+              {t('sidebar.social')}
             </h3>
             <div className="flex space-x-3">
               {socialLinks.map(({ icon: Icon, href, label }) => (
@@ -415,17 +415,17 @@ const Sidebar: React.FC<SidebarProps> = ({ darkMode, toggleDarkMode, onLoginClic
             <button
               onClick={toggleDarkMode}
               className="w-full py-3 px-4 bg-coffee-600 hover:bg-coffee-700 text-white rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2 font-medium"
-              aria-label={darkMode ? "라이트 모드로 전환" : "다크 모드로 전환"}
+              aria-label={darkMode ? t('sidebar.lightMode') : t('sidebar.darkMode')}
             >
               {darkMode ? (
                 <>
                   <FaSun size={18} />
-                  <span>라이트 모드</span>
+                  <span>{t('sidebar.lightMode')}</span>
                 </>
               ) : (
                 <>
                   <FaMoon size={18} />
-                  <span>다크 모드</span>
+                  <span>{t('sidebar.darkMode')}</span>
                 </>
               )}
             </button>
@@ -437,10 +437,10 @@ const Sidebar: React.FC<SidebarProps> = ({ darkMode, toggleDarkMode, onLoginClic
                   setIsOpen(false)
                 }}
                 className="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2 font-medium"
-                aria-label="관리자 로그아웃"
+                aria-label={t('sidebar.logout')}
               >
                 <FaSignInAlt size={18} />
-                <span>로그아웃</span>
+                <span>{t('sidebar.logout')}</span>
               </button>
             ) : (
               <button
@@ -449,10 +449,10 @@ const Sidebar: React.FC<SidebarProps> = ({ darkMode, toggleDarkMode, onLoginClic
                   setIsOpen(false)
                 }}
                 className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2 font-medium"
-                aria-label="관리자 로그인"
+                aria-label={t('sidebar.adminLogin')}
               >
                 <FaSignInAlt size={18} />
-                <span>관리자 로그인</span>
+                <span>{t('sidebar.adminLogin')}</span>
               </button>
             )}
           </div>

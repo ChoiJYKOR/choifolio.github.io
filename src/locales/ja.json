@@ -96,6 +96,17 @@
     "education": "学歴",
     "location": "所在地",
     "yearsOfExperience": "経験年数"
+  },
+  "sidebar": {
+    "coreSkills": "コアスキル",
+    "menu": "メニュー",
+    "social": "ソーシャル",
+    "lightMode": "ライトモード",
+    "darkMode": "ダークモード",
+    "logout": "ログアウト",
+    "adminLogin": "管理者ログイン",
+    "nativeLanguage": "母国語",
+    "noSkillData": "スキルデータがありません。"
   }
 }
 

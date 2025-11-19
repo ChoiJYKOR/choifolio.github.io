@@ -96,6 +96,17 @@
     "education": "Education",
     "location": "Location",
     "yearsOfExperience": "Years of Experience"
+  },
+  "sidebar": {
+    "coreSkills": "Core Skills",
+    "menu": "Menu",
+    "social": "Social",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "logout": "Logout",
+    "adminLogin": "Admin Login",
+    "nativeLanguage": "Native",
+    "noSkillData": "No skill data available"
   }
 }
 

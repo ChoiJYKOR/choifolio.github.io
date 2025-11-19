@@ -96,6 +96,17 @@
     "education": "학력",
     "location": "위치",
     "yearsOfExperience": "경력 연수"
+  },
+  "sidebar": {
+    "coreSkills": "핵심 기술",
+    "menu": "메뉴",
+    "social": "소셜",
+    "lightMode": "라이트 모드",
+    "darkMode": "다크 모드",
+    "logout": "로그아웃",
+    "adminLogin": "관리자 로그인",
+    "nativeLanguage": "모국어",
+    "noSkillData": "스킬 데이터가 없습니다."
   }
 }
 

@@ -7,7 +7,7 @@ import { useSiteSettings } from '@/hooks/useSiteSettings'
 import { useAuth } from '@/contexts/AuthContext'
 import { experiencesAPI } from '@/services/api'
 import { useTranslation } from 'react-i18next'
-import { getLocalizedField } from '@/utils/i18nUtils'
+import { getLocalizedField, getLocalizedArrayField } from '@/utils/i18nUtils'
 
 // TypeScript 인터페이스 정의 (API의 Experience 타입과 동일하게)
 interface JourneyStep {
@@ -114,11 +114,11 @@ const About: React.FC = () => {
           .map((item: any) => ({
             _id: item._id,
             icon: getSafeIcon(item.iconKey), // 안전한 아이콘 가져오기
-            company: item.company || '회사명 없음',
-            title: item.title,
+            company: getLocalizedField(currentLang, item.company, item.companyEn, item.companyJa) || '회사명 없음',
+            title: getLocalizedField(currentLang, item.title, item.titleEn, item.titleJa) || item.title,
             period: item.period,
-            skills: item.skills || [],
-            description: item.description,
+            skills: getLocalizedArrayField(currentLang, item.skills, item.skillsEn, item.skillsJa),
+            description: getLocalizedField(currentLang, item.description, item.descriptionEn, item.descriptionJa) || item.description,
             order: item.order || 0,
           }))
           .sort((a: JourneyStep, b: JourneyStep) => (a.order || 0) - (b.order || 0))
@@ -135,7 +135,7 @@ const About: React.FC = () => {
     } finally {
       setDataLoading(false)
     }
-  }, [])
+  }, [currentLang])
 
   useEffect(() => {
     fetchJourneyData()
