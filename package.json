@@ -1,6 +1,7 @@
 {
   "name": "juyeong-portfolio",
   "version": "1.0.0",
+  "type": "module",
   "description": "최주영의 공장자동화 포트폴리오 웹사이트",
   "main": "index.js",
   "scripts": {
