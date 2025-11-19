@@ -74,7 +74,7 @@ function App() {
       <SiteSettingsProvider>
         <AuthProvider>
           <Router
-            basename=""
+            basename={import.meta.env.PROD ? "/choifolio.github.io" : ""}
             future={{
               v7_startTransition: true,
               v7_relativeSplatPath: true,
