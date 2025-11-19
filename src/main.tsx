@@ -9,8 +9,8 @@ const redirectPath = sessionStorage.getItem('redirectPath')
 if (redirectPath !== null) {
   sessionStorage.removeItem('redirectPath')
   // React Router basename과 일치하도록 경로 설정
-  // basename은 "/choifolio.github.io"이므로 redirectPath는 서브패스 없이 저장됨
-  const targetPath = '/choifolio.github.io' + (redirectPath || '/')
+  // basename은 ""이므로 redirectPath를 그대로 사용
+  const targetPath = redirectPath || '/'
   const currentPath = window.location.pathname + window.location.search + window.location.hash
   if (targetPath !== currentPath) {
     window.history.replaceState(null, '', targetPath)
