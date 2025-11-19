@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting...</title>
+    <script>
+      // GitHub Pages SPA 404 리디렉션 해결
+      // 현재 경로를 sessionStorage에 저장하고 루트로 이동
+      var path = location.pathname + location.search + location.hash;
+      
+      // 루트 경로는 빈 문자열로 처리
+      if (path === '/' || path === '') {
+        path = '';
+      }
+      
+      sessionStorage.setItem('redirectPath', path);
+      location.replace(location.origin + '/');
+    </script>
+  </head>
+  <body>
+    <!-- GitHub Pages SPA redirect -->
+  </body>
+</html>
+
