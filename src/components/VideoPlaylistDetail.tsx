@@ -51,30 +51,41 @@ const VideoPlaylistDetail: React.FC = () => {
   const [editingContent, setEditingContent] = useState<SerializedEditorState>({ root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } })
   
   // keyTakeaways 문자열을 SerializedEditorState로 변환
+  // ⚠️ 주의: 편집 모드에서는 Lexical 형식만 사용하므로, Editor.js 데이터는 빈 상태로 시작
   const parseKeyTakeaways = (value: string | undefined): SerializedEditorState => {
+    const emptyState = { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+    
     if (!value || typeof value !== 'string') {
-      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+      return emptyState
     }
     
     // JSON 형식인지 먼저 확인 (시작이 '{' 또는 '['로 시작하는지)
     const trimmed = value.trim()
     if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
       // JSON이 아닌 일반 문자열인 경우 빈 에디터 상태 반환
-      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+      return emptyState
     }
     
     try {
       const parsed = JSON.parse(value)
-      if (parsed && parsed.root) return parsed
-      // 레거시 Editor.js 데이터도 호환성 위해 처리
-      if (parsed && parsed.blocks) {
-        return parsed as any
+      
+      // Lexical 형식인지 확인 (root.type === 'root'인지 확인)
+      if (parsed && parsed.root && parsed.root.type === 'root') {
+        return parsed
       }
-      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+      
+      // Editor.js 데이터인 경우 빈 상태 반환
+      // (읽기 모드에서는 renderEditorJSData로 렌더링되지만, 편집 모드에서는 Lexical만 사용)
+      if (parsed && parsed.blocks) {
+        console.warn('Editor.js 데이터 감지 - 편집 모드에서는 빈 상태로 시작합니다.')
+        return emptyState
+      }
+      
+      return emptyState
     } catch (e) {
       // JSON 파싱 실패 시 빈 에디터 상태 반환
       console.warn('parseKeyTakeaways JSON 파싱 실패:', e, value)
-      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+      return emptyState
     }
   }
 
