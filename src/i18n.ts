@@ -12,7 +12,14 @@ i18n
       en: { translation: en },
       ja: { translation: ja }
     },
-    lng: localStorage.getItem('language') || 'ko',
+    lng: (() => {
+      try {
+        return localStorage.getItem('language') || 'ko'
+      } catch (error) {
+        console.warn('localStorage 접근 불가:', error)
+        return 'ko'
+      }
+    })(),
     fallbackLng: 'ko',
     interpolation: {
       escapeValue: false

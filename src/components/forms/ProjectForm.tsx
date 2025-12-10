@@ -3,6 +3,7 @@ import { FaSave, FaPlus, FaTrash, FaVideo, FaTimes, FaImage } from 'react-icons/
 import { Project, ProjectFormData, Skill, SkillCategory } from '../../types'
 import RichTextEditor from '../RichTextEditor'
 import LexicalEditor from '../lexical/LexicalEditor'
+import { SerializedEditorState } from 'lexical'
 import { useSkills } from '../../hooks/useSkills'
 import { useCategories } from '../../hooks/useCategories'
 import LanguageTabs from '../common/LanguageTabs'
@@ -35,6 +36,18 @@ const ProjectForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = f
     handleRemoveImage,
     prepareDataForSubmit
   } = useProjectForm(data)
+  
+  // Lexical 데이터의 문자열 길이 계산 헬퍼 함수
+  const getDescriptionLength = (description: string | SerializedEditorState | null | undefined): number => {
+    if (!description) return 0
+    if (typeof description === 'string') return description.length
+    // SerializedEditorState 객체인 경우 JSON 문자열로 변환 후 길이 계산
+    try {
+      return JSON.stringify(description).length
+    } catch {
+      return 0
+    }
+  }
   
   // 🌟 모든 스킬 목록을 가져옵니다
   const { skillCategories, loading: skillsLoading } = useSkills()
@@ -519,7 +532,7 @@ const ProjectForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = f
                   />
                 </div>
 
-                {/* 이미지 설명 (RichTextEditor - 다국어) */}
+                {/* 이미지 설명 (LexicalEditor - 다국어) */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -528,15 +541,21 @@ const ProjectForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = f
                         ({currentLang === 'ko' ? '🇰🇷 한국어' : currentLang === 'en' ? '🇺🇸 English' : '🇯🇵 日本語'})
                       </span>
                     </label>
-                    <span className={`text-xs ${
-                      (currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length) > 5000 
-                        ? 'text-red-600 dark:text-red-400 font-bold' 
-                        : (currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length) > 4000
-                        ? 'text-orange-600 dark:text-orange-400'
-                        : 'text-gray-500 dark:text-gray-400'
-                    }`}>
-                      {currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length} / 5000자
-                    </span>
+                    {(() => {
+                      const desc = currentLang === 'ko' ? item.description : currentLang === 'en' ? item.descriptionEn : item.descriptionJa
+                      const length = getDescriptionLength(desc)
+                      return (
+                        <span className={`text-xs ${
+                          length > 5000 
+                            ? 'text-red-600 dark:text-red-400 font-bold' 
+                            : length > 4000
+                            ? 'text-orange-600 dark:text-orange-400'
+                            : 'text-gray-500 dark:text-gray-400'
+                        }`}>
+                          {length} / 5000자
+                        </span>
+                      )
+                    })()}
                   </div>
                   
                   {currentLang === 'ko' && (
@@ -570,7 +589,11 @@ const ProjectForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = f
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       💡 이 설명은 프로젝트 상세 페이지에서 이미지 하단에 표시됩니다.
                     </p>
-                    {(currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length) > 4000 && (
+                    {(() => {
+                      const desc = currentLang === 'ko' ? item.description : currentLang === 'en' ? item.descriptionEn : item.descriptionJa
+                      const length = getDescriptionLength(desc)
+                      return length > 4000
+                    })() && (
                       <p className="text-xs text-orange-600 dark:text-orange-400">
                         ⚠️ 글자 수가 많습니다. 간결하게 작성해주세요.
                       </p>
@@ -649,15 +672,21 @@ const ProjectForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = f
                         ({currentLang === 'ko' ? '🇰🇷 한국어' : currentLang === 'en' ? '🇺🇸 English' : '🇯🇵 日本語'})
                       </span>
                     </label>
-                    <span className={`text-xs ${
-                      (currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length) > 5000 
-                        ? 'text-red-600 dark:text-red-400 font-bold' 
-                        : (currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length) > 4000
-                        ? 'text-orange-600 dark:text-orange-400'
-                        : 'text-gray-500 dark:text-gray-400'
-                    }`}>
-                      {currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length} / 5000자
-                    </span>
+                    {(() => {
+                      const desc = currentLang === 'ko' ? item.description : currentLang === 'en' ? item.descriptionEn : item.descriptionJa
+                      const length = getDescriptionLength(desc)
+                      return (
+                        <span className={`text-xs ${
+                          length > 5000 
+                            ? 'text-red-600 dark:text-red-400 font-bold' 
+                            : length > 4000
+                            ? 'text-orange-600 dark:text-orange-400'
+                            : 'text-gray-500 dark:text-gray-400'
+                        }`}>
+                          {length} / 5000자
+                        </span>
+                      )
+                    })()}
                   </div>
                   
                   {currentLang === 'ko' && (
@@ -694,7 +723,11 @@ const ProjectForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = f
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       💡 이 설명은 프로젝트 상세 페이지에서 영상 하단에 표시됩니다.
                     </p>
-                    {(currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length) > 4000 && (
+                    {(() => {
+                      const desc = currentLang === 'ko' ? item.description : currentLang === 'en' ? item.descriptionEn : item.descriptionJa
+                      const length = getDescriptionLength(desc)
+                      return length > 4000
+                    })() && (
                       <p className="text-xs text-orange-600 dark:text-orange-400">
                         ⚠️ 글자 수가 많습니다. 간결하게 작성해주세요.
                       </p>

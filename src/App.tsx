@@ -42,15 +42,20 @@ function App() {
 
   // 다크 모드 및 첫 방문 상태 초기화
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      setDarkMode(true)
-    }
+    try {
+      const savedTheme = localStorage.getItem('theme')
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        setDarkMode(true)
+      }
 
-    // 첫 방문 여부 확인
-    const hasVisited = localStorage.getItem('hasVisited')
-    if (hasVisited) {
-      setIsFirstVisit(false)
+      // 첫 방문 여부 확인
+      const hasVisited = localStorage.getItem('hasVisited')
+      if (hasVisited) {
+        setIsFirstVisit(false)
+      }
+    } catch (error) {
+      // localStorage 접근이 차단된 경우 (예: 보안 컨텍스트)
+      console.warn('localStorage 접근 불가:', error)
     }
   }, [])
 
@@ -58,10 +63,18 @@ function App() {
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
+      try {
+        localStorage.setItem('theme', 'dark')
+      } catch (error) {
+        console.warn('localStorage 저장 불가:', error)
+      }
     } else {
       document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
+      try {
+        localStorage.setItem('theme', 'light')
+      } catch (error) {
+        console.warn('localStorage 저장 불가:', error)
+      }
     }
   }, [darkMode])
 

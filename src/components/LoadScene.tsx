@@ -43,7 +43,11 @@ const LoadScene: React.FC<LoadSceneProps> = ({ onFirstVisitComplete }) => {
   useEffect(() => {
     const autoNavigateTimer = setTimeout(() => {
       // 첫 방문 완료 플래그 설정
-      localStorage.setItem('hasVisited', 'true')
+      try {
+        localStorage.setItem('hasVisited', 'true')
+      } catch (error) {
+        console.warn('localStorage 저장 불가:', error)
+      }
       onFirstVisitComplete?.()
       navigate('/home')
     }, 6000) // 총 6초 후 자동 이동 (Loading 3초 + 추가 3초)

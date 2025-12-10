@@ -13,7 +13,11 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'default'
 
   const changeLanguage = (lang: Language) => {
     i18n.changeLanguage(lang)
-    localStorage.setItem('language', lang)
+    try {
+      localStorage.setItem('language', lang)
+    } catch (error) {
+      console.warn('localStorage 저장 불가:', error)
+    }
   }
 
   const languages = [
