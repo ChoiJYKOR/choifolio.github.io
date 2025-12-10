@@ -48,12 +48,19 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
 
   // keyTakeaways를 SerializedEditorState 형식으로 관리
   const parseKeyTakeaways = (value: string | undefined): SerializedEditorState => {
-    if (!value) return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
-    try {
-      const parsed = JSON.parse(value)
-      if (parsed && parsed.root) return parsed
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
       return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
-    } catch {
+    }
+    try {
+      const parsed = typeof value === 'string' ? JSON.parse(value) : value
+      if (parsed && parsed.root && parsed.root.type === 'root') {
+        console.log('✅ VideoPlaylistForm: keyTakeaways 파싱 성공', parsed)
+        return parsed
+      }
+      console.warn('⚠️ VideoPlaylistForm: keyTakeaways 형식이 아님', parsed)
+      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+    } catch (error) {
+      console.error('❌ VideoPlaylistForm: keyTakeaways 파싱 실패', error, value)
       return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
     }
   }
@@ -64,14 +71,15 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
       return null
     }
     try {
-      const parsed = JSON.parse(value)
+      const parsed = typeof value === 'string' ? JSON.parse(value) : value
       if (parsed && parsed.root && parsed.root.type === 'root') {
+        console.log('✅ VideoPlaylistForm: Lexical 필드 파싱 성공', parsed)
         return parsed
       }
-      // Lexical 형식이 아니면 null 반환 (빈 상태로 처리)
+      console.warn('⚠️ VideoPlaylistForm: Lexical 형식이 아님', parsed)
       return null
-    } catch {
-      // JSON 파싱 실패 시 null 반환
+    } catch (error) {
+      console.error('❌ VideoPlaylistForm: JSON 파싱 실패', error, value)
       return null
     }
   }
@@ -125,8 +133,14 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
       console.log('📝 VideoPlaylistForm: data 로드됨', {
         title: data.title,
         keyTakeaways: data.keyTakeaways,
+        keyTakeawaysType: typeof data.keyTakeaways,
+        keyTakeawaysLength: data.keyTakeaways?.length,
         purpose: data.purpose,
+        purposeType: typeof data.purpose,
+        purposeLength: data.purpose?.length,
         application: data.application,
+        applicationType: typeof data.application,
+        applicationLength: data.application?.length,
       })
       
       const updatedCategoryIds = data.categoryIds 
@@ -149,13 +163,16 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
       
       console.log('📝 파싱된 데이터:', {
         purpose: parsedPurpose,
+        purposeIsNull: parsedPurpose === null,
         keyTakeaways: parsedKeyTakeaways,
+        keyTakeawaysHasChildren: parsedKeyTakeaways?.root?.children?.length > 0,
         application: parsedApplication,
+        applicationIsNull: parsedApplication === null,
       })
 
       setFormData({
-        title: data.title,
-        category: data.category,
+        title: data.title || '',
+        category: data.category || availableCategories[0] || 'PLC',
         categoryIds: updatedCategoryIds,
         watchDate: updatedWatchDate as string,
         rating: data.rating || 3,
@@ -170,6 +187,21 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
       if (data.playlistId) {
         setPlaylistUrlInput(`https://www.youtube.com/playlist?list=${data.playlistId}`)
       }
+    } else {
+      // data가 null이면 초기화
+      setFormData({
+        title: '',
+        category: availableCategories[0] || 'PLC',
+        categoryIds: [],
+        watchDate: new Date().toISOString().split('T')[0],
+        rating: 3,
+        purpose: null,
+        keyTakeaways: { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
+        application: null,
+        skillIds: [],
+        order: 0,
+      })
+      setPlaylistUrlInput('')
     }
   }, [data])
 

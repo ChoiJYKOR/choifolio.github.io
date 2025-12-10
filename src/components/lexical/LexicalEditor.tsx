@@ -115,8 +115,20 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   className = '',
 }) => {
   // value가 실제로 변경될 때만 force update
+  // value가 null이어도 변경을 감지하기 위해 null을 포함한 문자열로 변환
   const forceUpdateKey = React.useMemo(() => {
-    return JSON.stringify(value)
+    if (value === null) return 'null'
+    if (value === undefined) return 'undefined'
+    if (typeof value === 'string') {
+      // 문자열인 경우 그대로 사용 (이미 JSON 문자열일 수 있음)
+      return value
+    }
+    // 객체인 경우 JSON 문자열로 변환
+    try {
+      return JSON.stringify(value)
+    } catch {
+      return String(value)
+    }
   }, [value])
   
   const initialConfig = useMemo(() => {

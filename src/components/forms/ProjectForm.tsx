@@ -540,32 +540,29 @@ const ProjectForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = f
                   </div>
                   
                   {currentLang === 'ko' && (
-                    <RichTextEditor
+                    <LexicalEditor
                       value={item.description}
                       onChange={(value) => handleImageDescriptionChange(index, value, 'ko')}
                       placeholder="이 이미지에 대한 간단한 설명을 작성하세요. 굵게, 기울임, 리스트 등 다양한 서식을 사용할 수 있습니다."
-                      rows={4}
-                      className="min-h-[150px]"
+                      className="min-h-[200px]"
                     />
                   )}
                   
                   {currentLang === 'en' && (
-                    <RichTextEditor
+                    <LexicalEditor
                       value={item.descriptionEn}
                       onChange={(value) => handleImageDescriptionChange(index, value, 'en')}
                       placeholder="Write a brief description of this image. You can use bold, italic, lists, and other formatting."
-                      rows={4}
-                      className="min-h-[150px]"
+                      className="min-h-[200px]"
                     />
                   )}
                   
                   {currentLang === 'ja' && (
-                    <RichTextEditor
+                    <LexicalEditor
                       value={item.descriptionJa}
                       onChange={(value) => handleImageDescriptionChange(index, value, 'ja')}
                       placeholder="この画像の簡単な説明を書いてください。太字、斜体、リストなどの書式を使用できます。"
-                      rows={4}
-                      className="min-h-[150px]"
+                      className="min-h-[200px]"
                     />
                   )}
                   

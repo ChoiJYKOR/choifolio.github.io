@@ -35,22 +35,36 @@ const LearningForm: React.FC<LearningFormProps> = ({
 
   // Lexical 데이터 파싱 함수
   const parseContent = (value: string | undefined): SerializedEditorState | null => {
-    if (!value) return null
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
+      return null
+    }
     try {
-      const parsed = JSON.parse(value)
-      if (parsed && parsed.root) return parsed
-      // 레거시 HTML 형식인 경우 빈 Lexical 상태로 초기화
-      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
-    } catch {
-      // JSON이 아닌 경우 (레거시 HTML 등) 빈 상태로 초기화
-      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+      const parsed = typeof value === 'string' ? JSON.parse(value) : value
+      if (parsed && parsed.root && parsed.root.type === 'root') {
+        console.log('✅ LearningForm: Lexical 데이터 파싱 성공', parsed)
+        return parsed
+      }
+      console.warn('⚠️ LearningForm: Lexical 형식이 아님', parsed)
+      return null
+    } catch (error) {
+      console.error('❌ LearningForm: JSON 파싱 실패', error, value)
+      return null
     }
   }
 
   useEffect(() => {
+    console.log('🔄 LearningForm: learning 변경됨', learning)
     if (learning) {
-      setTopic(learning.topic)
-      setContent(parseContent(learning.content))
+      console.log('📝 LearningForm: 데이터 로드', {
+        topic: learning.topic,
+        content: learning.content,
+        contentType: typeof learning.content,
+        contentLength: learning.content?.length
+      })
+      setTopic(learning.topic || '')
+      const parsedContent = parseContent(learning.content)
+      console.log('📝 LearningForm: 파싱된 content', parsedContent)
+      setContent(parsedContent)
     } else {
       setTopic('')
       setContent(null)

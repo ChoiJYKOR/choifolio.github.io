@@ -1,21 +1,22 @@
 import { useState, useEffect } from 'react'
 import { Project, ProjectFormData } from '../types'
 import { AdminLanguage } from '../components/common/LanguageTabs'
+import { SerializedEditorState } from 'lexical'
 
 // Video item type with multilingual descriptions
 export interface VideoItem {
   url: string
-  description: string
-  descriptionEn: string
-  descriptionJa: string
+  description: string | SerializedEditorState | null
+  descriptionEn: string | SerializedEditorState | null
+  descriptionJa: string | SerializedEditorState | null
 }
 
 // Image item type with multilingual descriptions
 export interface ImageItem {
   url: string
-  description: string
-  descriptionEn: string
-  descriptionJa: string
+  description: string | SerializedEditorState | null
+  descriptionEn: string | SerializedEditorState | null
+  descriptionJa: string | SerializedEditorState | null
 }
 
 interface UseProjectFormReturn {
@@ -30,11 +31,11 @@ interface UseProjectFormReturn {
   handleFieldChange: (key: string, value: any) => void
   handleArrayFieldChange: (key: string, value: string[]) => void
   handleVideoUrlChange: (index: number, url: string) => void
-  handleVideoDescriptionChange: (index: number, description: string, lang: 'ko' | 'en' | 'ja') => void
+  handleVideoDescriptionChange: (index: number, description: string | SerializedEditorState, lang: 'ko' | 'en' | 'ja') => void
   handleAddVideo: () => void
   handleRemoveVideo: (index: number) => void
   handleImageUrlChange: (index: number, url: string) => void
-  handleImageDescriptionChange: (index: number, description: string, lang: 'ko' | 'en' | 'ja') => void
+  handleImageDescriptionChange: (index: number, description: string | SerializedEditorState, lang: 'ko' | 'en' | 'ja') => void
   handleAddImage: () => void
   handleRemoveImage: (index: number) => void
   prepareDataForSubmit: () => any
@@ -44,6 +45,22 @@ interface UseProjectFormReturn {
  * Custom hook for ProjectForm
  * Handles all form state management, data initialization, and preparation for submission
  */
+// Lexical 데이터 파싱 함수
+const parseLexicalField = (value: string | undefined): SerializedEditorState | null => {
+  if (!value || (typeof value === 'string' && value.trim() === '')) {
+    return null
+  }
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value
+    if (parsed && parsed.root && parsed.root.type === 'root') {
+      return parsed
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
 export const useProjectForm = (initialData: Project | null): UseProjectFormReturn => {
   const [currentLang, setCurrentLang] = useState<AdminLanguage>('ko')
   
@@ -66,9 +83,9 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
     if (initialData?.videos && Array.isArray(initialData.videos)) {
       return initialData.videos.map((url, index) => ({
         url,
-        description: initialData.videoDescriptions?.[index] || '',
-        descriptionEn: initialData.videoDescriptionsEn?.[index] || '',
-        descriptionJa: initialData.videoDescriptionsJa?.[index] || ''
+        description: parseLexicalField(initialData.videoDescriptions?.[index]),
+        descriptionEn: parseLexicalField(initialData.videoDescriptionsEn?.[index]),
+        descriptionJa: parseLexicalField(initialData.videoDescriptionsJa?.[index])
       }))
     }
     return []
@@ -77,15 +94,54 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
   // Initialize image items
   const [imageItems, setImageItems] = useState<ImageItem[]>(() => {
     if (initialData?.images && Array.isArray(initialData.images)) {
-      return initialData.images.map((url, index) => ({
+      const items = initialData.images.map((url, index) => ({
         url,
-        description: initialData.imageDescriptions?.[index] || '',
-        descriptionEn: initialData.imageDescriptionsEn?.[index] || '',
-        descriptionJa: initialData.imageDescriptionsJa?.[index] || ''
+        description: parseLexicalField(initialData.imageDescriptions?.[index]),
+        descriptionEn: parseLexicalField(initialData.imageDescriptionsEn?.[index]),
+        descriptionJa: parseLexicalField(initialData.imageDescriptionsJa?.[index])
       }))
+      console.log('🖼️ ImageItems 초기화:', {
+        images: initialData.images,
+        imageDescriptions: initialData.imageDescriptions,
+        imageDescriptionsEn: initialData.imageDescriptionsEn,
+        imageDescriptionsJa: initialData.imageDescriptionsJa,
+        items
+      })
+      return items
     }
     return []
   })
+  
+  // 🌟 initialData가 변경될 때 imageItems와 videoItems 업데이트
+  useEffect(() => {
+    if (initialData) {
+      console.log('🔄 initialData 변경됨, imageItems/videoItems 업데이트:', initialData)
+      
+      // Video items 업데이트
+      if (initialData.videos && Array.isArray(initialData.videos)) {
+        const updatedVideoItems = initialData.videos.map((url, index) => ({
+          url,
+          description: parseLexicalField(initialData.videoDescriptions?.[index]),
+          descriptionEn: parseLexicalField(initialData.videoDescriptionsEn?.[index]),
+          descriptionJa: parseLexicalField(initialData.videoDescriptionsJa?.[index])
+        }))
+        console.log('📹 VideoItems 업데이트:', updatedVideoItems)
+        setVideoItems(updatedVideoItems)
+      }
+      
+      // Image items 업데이트
+      if (initialData.images && Array.isArray(initialData.images)) {
+        const updatedImageItems = initialData.images.map((url, index) => ({
+          url,
+          description: parseLexicalField(initialData.imageDescriptions?.[index]),
+          descriptionEn: parseLexicalField(initialData.imageDescriptionsEn?.[index]),
+          descriptionJa: parseLexicalField(initialData.imageDescriptionsJa?.[index])
+        }))
+        console.log('🖼️ ImageItems 업데이트:', updatedImageItems)
+        setImageItems(updatedImageItems)
+      }
+    }
+  }, [initialData])
 
   // Initialize form data
   const [formData, setFormData] = useState<any>(
@@ -166,7 +222,7 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
     }
   }
 
-  const handleVideoDescriptionChange = (index: number, description: string, lang: 'ko' | 'en' | 'ja') => {
+  const handleVideoDescriptionChange = (index: number, description: string | SerializedEditorState, lang: 'ko' | 'en' | 'ja') => {
     const newVideoItems = [...videoItems]
     if (newVideoItems[index]) {
       if (lang === 'ko') {
@@ -197,7 +253,7 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
     }
   }
 
-  const handleImageDescriptionChange = (index: number, description: string, lang: 'ko' | 'en' | 'ja') => {
+  const handleImageDescriptionChange = (index: number, description: string | SerializedEditorState, lang: 'ko' | 'en' | 'ja') => {
     const newImageItems = [...imageItems]
     if (newImageItems[index]) {
       if (lang === 'ko') {
@@ -215,15 +271,55 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
   const prepareDataForSubmit = (): any => {
     // Extract video data
     const videos = videoItems.map(item => item.url).filter(url => url.trim().length > 0)
-    const videoDescriptions = videoItems.map(item => item.description)
-    const videoDescriptionsEn = videoItems.map(item => item.descriptionEn)
-    const videoDescriptionsJa = videoItems.map(item => item.descriptionJa)
+    const videoDescriptions = videoItems.map(item => {
+      // SerializedEditorState 객체인 경우 JSON 문자열로 변환
+      if (item.description && typeof item.description === 'object') {
+        return JSON.stringify(item.description)
+      }
+      return item.description || ''
+    })
+    const videoDescriptionsEn = videoItems.map(item => {
+      if (item.descriptionEn && typeof item.descriptionEn === 'object') {
+        return JSON.stringify(item.descriptionEn)
+      }
+      return item.descriptionEn || ''
+    })
+    const videoDescriptionsJa = videoItems.map(item => {
+      if (item.descriptionJa && typeof item.descriptionJa === 'object') {
+        return JSON.stringify(item.descriptionJa)
+      }
+      return item.descriptionJa || ''
+    })
     
     // Extract image data
     const images = imageItems.map(item => item.url).filter(url => url.trim().length > 0)
-    const imageDescriptions = imageItems.map(item => item.description)
-    const imageDescriptionsEn = imageItems.map(item => item.descriptionEn)
-    const imageDescriptionsJa = imageItems.map(item => item.descriptionJa)
+    const imageDescriptions = imageItems.map(item => {
+      // SerializedEditorState 객체인 경우 JSON 문자열로 변환
+      if (item.description && typeof item.description === 'object') {
+        return JSON.stringify(item.description)
+      }
+      return item.description || ''
+    })
+    const imageDescriptionsEn = imageItems.map(item => {
+      if (item.descriptionEn && typeof item.descriptionEn === 'object') {
+        return JSON.stringify(item.descriptionEn)
+      }
+      return item.descriptionEn || ''
+    })
+    const imageDescriptionsJa = imageItems.map(item => {
+      if (item.descriptionJa && typeof item.descriptionJa === 'object') {
+        return JSON.stringify(item.descriptionJa)
+      }
+      return item.descriptionJa || ''
+    })
+    
+    console.log('💾 이미지 데이터 준비:', {
+      images,
+      imageDescriptions,
+      imageDescriptionsEn,
+      imageDescriptionsJa,
+      imageItems
+    })
     
     // Validate video descriptions length
     for (let i = 0; i < videoItems.length; i++) {

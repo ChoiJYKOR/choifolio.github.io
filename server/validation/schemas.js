@@ -412,6 +412,20 @@ const projectSchema = Joi.object({
       'array.max': '이미지는 최대 10개까지 업로드 가능합니다',
       'string.uri': '올바른 이미지 URL 형식이어야 합니다'
     }),
+  imageDescriptions: Joi.array()
+    .items(
+      Joi.string()
+        .max(5000)  // 🌟 HTML/Lexical 형식을 고려하여 5000자로 설정
+        .trim()
+        .allow('')
+    )
+    .max(10)
+    .messages({
+      'array.max': '이미지 설명은 최대 10개까지 입력 가능합니다',
+      'string.max': '각 이미지 설명은 5000자를 초과할 수 없습니다 (HTML/Lexical 포함)'
+    }),
+  imageDescriptionsEn: Joi.array().items(Joi.string().max(5000).trim().allow('')).max(10).optional(),
+  imageDescriptionsJa: Joi.array().items(Joi.string().max(5000).trim().allow('')).max(10).optional(),
   videos: Joi.array()
     .items(Joi.string().uri())
     .max(5)
