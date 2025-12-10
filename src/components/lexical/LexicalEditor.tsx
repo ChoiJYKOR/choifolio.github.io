@@ -34,8 +34,11 @@ const UpdateStatePlugin = ({ value, forceUpdate }: { value: string | SerializedE
   const [editor] = useLexicalComposerContext()
   
   useEffect(() => {
+    console.log('🔄 UpdateStatePlugin: value 변경됨', { value, forceUpdate })
+    
     if (!value) {
       // value가 null이면 아무것도 하지 않음 (기본 상태 유지)
+      console.log('⚠️ UpdateStatePlugin: value가 null이므로 업데이트 스킵')
       return
     }
     

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { FaSave, FaStar, FaTimes } from 'react-icons/fa'
 import { VideoLearning, VideoLearningFormData, Skill, SkillCategory } from '../../types'
 import { extractYouTubeId, getYouTubeThumbnail } from '../../utils/videoUtils'
@@ -80,12 +80,18 @@ const VideoLearningForm: React.FC<FormProps> = ({
 
   // purpose와 application을 SerializedEditorState 형식으로 관리
   const parseLexicalField = (value: string | undefined): SerializedEditorState | null => {
-    if (!value) return null
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
+      return null
+    }
     try {
       const parsed = JSON.parse(value)
-      if (parsed && parsed.root) return parsed
+      if (parsed && parsed.root && parsed.root.type === 'root') {
+        return parsed
+      }
+      // Lexical 형식이 아니면 null 반환 (빈 상태로 처리)
       return null
     } catch {
+      // JSON 파싱 실패 시 null 반환
       return null
     }
   }
@@ -132,6 +138,63 @@ const VideoLearningForm: React.FC<FormProps> = ({
   const thumbnailUrl = useMemo(() => videoId ? getYouTubeThumbnail(videoId) : null, [videoId])
   const isValidUrl = useMemo(() => videoId !== null, [videoId])
 
+  // 🌟 data가 변경될 때 formData 업데이트
+  useEffect(() => {
+    if (data) {
+      console.log('📝 VideoLearningForm: data 로드됨', {
+        title: data.title,
+        keyTakeaways: data.keyTakeaways,
+        purpose: data.purpose,
+        application: data.application,
+      })
+      
+      const updatedSkillIds = data.skillIds 
+        ? (data.skillIds as any[]).map((skillIdOrObj: any) => 
+            typeof skillIdOrObj === 'string' ? skillIdOrObj : skillIdOrObj._id
+          ).filter(Boolean) as string[]
+        : []
+      
+      const updatedCategoryIds = data.categoryIds 
+        ? (data.categoryIds as any[]).map((catIdOrObj: any) => 
+            typeof catIdOrObj === 'string' ? catIdOrObj : catIdOrObj._id
+          ).filter(Boolean) as string[]
+        : []
+
+      const updatedWatchDate = data.watchDate && !isNaN(new Date(data.watchDate).getTime())
+        ? new Date(data.watchDate).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0]
+
+      const parsedPurpose = parseLexicalField(data.purpose)
+      const parsedKeyTakeaways = parseKeyTakeaways(data.keyTakeaways)
+      const parsedApplication = parseLexicalField(data.application)
+      
+      console.log('📝 파싱된 데이터:', {
+        purpose: parsedPurpose,
+        keyTakeaways: parsedKeyTakeaways,
+        application: parsedApplication,
+      })
+
+      setFormData({
+        title: data.title,
+        category: data.category,
+        categoryIds: updatedCategoryIds,
+        watchDate: updatedWatchDate as string,
+        rating: data.rating || 3,
+        purpose: parsedPurpose,
+        keyTakeaways: parsedKeyTakeaways,
+        application: parsedApplication,
+        skillIds: updatedSkillIds,
+        order: data.order || 0,
+      })
+
+      // videoUrl도 업데이트
+      if (data.videoId) {
+        setVideoUrlInput(`https://www.youtube.com/watch?v=${data.videoId}`)
+      } else if ((data as any)?.videoUrl) {
+        setVideoUrlInput((data as any).videoUrl)
+      }
+    }
+  }, [data])
 
   // 🌟 카테고리 선택/해제 핸들러 (체크박스용)
   const handleCategoryToggle = (categoryId: string) => {

@@ -391,61 +391,18 @@ const ProjectDetail: React.FC = () => {
                     if (!image) return null
                     
                     return (
-                      <div>
-                        <div className="relative w-full rounded-lg overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700 cursor-pointer" onClick={() => setSelectedImage(image)}>
-                          <div className="aspect-video">
-                            <img
-                              src={image}
-                              alt={`${localizedProject.title} 이미지 ${currentImageIndex + 1}`}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              loading="lazy"
-                              decoding="async"
-                              width="1280"
-                              height="720"
-                            />
-                          </div>
+                      <div className="relative w-full rounded-lg overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700 cursor-pointer" onClick={() => setSelectedImage(image)}>
+                        <div className="aspect-video">
+                          <img
+                            src={image}
+                            alt={`${localizedProject.title} 이미지 ${currentImageIndex + 1}`}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                            decoding="async"
+                            width="1280"
+                            height="720"
+                          />
                         </div>
-                        
-                        {/* 🌟 이미지 설명 (Lexical 또는 HTML 렌더링) */}
-                        {(() => {
-                          const description = localizedProject.imageDescriptions?.[currentImageIndex]
-                          if (!description || (typeof description === 'string' && description.trim() === '')) {
-                            return null
-                          }
-                          
-                          return (
-                            <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                              <div className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
-                                {(() => {
-                                  // Lexical 데이터인지 확인
-                                  let parsedData: any
-                                  if (typeof description === 'string') {
-                                    try {
-                                      parsedData = JSON.parse(description)
-                                    } catch {
-                                      // JSON이 아니면 HTML로 처리
-                                      return <div dangerouslySetInnerHTML={{ __html: description }} />
-                                    }
-                                  } else {
-                                    parsedData = description
-                                  }
-                                  
-                                  if (isLexicalData(parsedData)) {
-                                    // Lexical 데이터인 경우
-                                    const html = renderLexicalData(parsedData)
-                                    if (!html || html.trim() === '') return null
-                                    return <div dangerouslySetInnerHTML={{ __html: html }} />
-                                  } else {
-                                    // 일반 HTML인 경우
-                                    const htmlContent = typeof description === 'string' ? description : JSON.stringify(description)
-                                    if (!htmlContent || htmlContent.trim() === '') return null
-                                    return <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-                                  }
-                                })()}
-                              </div>
-                            </div>
-                          )
-                        })()}
                       </div>
                     )
                   })()}
@@ -470,6 +427,45 @@ const ProjectDetail: React.FC = () => {
                     </>
                   )}
                 </div>
+                
+                {/* 🌟 이미지 설명 (비디오 설명과 동일한 스타일로 이미지 카드 아래에 표시) */}
+                {localizedProject.imageDescriptions?.[currentImageIndex] && (
+                  <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
+                      {(() => {
+                        const description = localizedProject.imageDescriptions[currentImageIndex]
+                        if (!description || (typeof description === 'string' && description.trim() === '')) {
+                          return null
+                        }
+                        
+                        // Lexical 데이터인지 확인
+                        let parsedData: any
+                        if (typeof description === 'string') {
+                          try {
+                            parsedData = JSON.parse(description)
+                          } catch {
+                            // JSON이 아니면 HTML로 처리
+                            return <div dangerouslySetInnerHTML={{ __html: description }} />
+                          }
+                        } else {
+                          parsedData = description
+                        }
+                        
+                        if (isLexicalData(parsedData)) {
+                          // Lexical 데이터인 경우
+                          const html = renderLexicalData(parsedData)
+                          if (!html || html.trim() === '') return null
+                          return <div dangerouslySetInnerHTML={{ __html: html }} />
+                        } else {
+                          // 일반 HTML인 경우
+                          const htmlContent = typeof description === 'string' ? description : JSON.stringify(description)
+                          if (!htmlContent || htmlContent.trim() === '') return null
+                          return <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                        }
+                      })()}
+                    </div>
+                  </div>
+                )}
                 
                 {/* 🌟 인디케이터 (이미지가 2개 이상일 때) */}
                 {localizedProject.images.length > 1 && (
