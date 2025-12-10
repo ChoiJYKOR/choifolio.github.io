@@ -1,6 +1,7 @@
 import React from 'react'
 import { FaPlus, FaEdit, FaTrash, FaBook } from 'react-icons/fa'
 import { Learning } from '../../types'
+import { renderLexicalData, isLexicalData } from '../../utils/textUtils'
 
 interface LearningListProps {
   learnings: Learning[]
@@ -61,10 +62,31 @@ const LearningList: React.FC<LearningListProps> = ({
                   </button>
                 </div>
               </div>
-              <div 
-                className="text-gray-700 dark:text-gray-300 text-sm prose prose-sm max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: learning.content }}
-              />
+              <div className="text-gray-700 dark:text-gray-300 text-sm prose prose-sm max-w-none dark:prose-invert">
+                {(() => {
+                  // Lexical 데이터인지 확인
+                  let parsedData: any
+                  if (typeof learning.content === 'string') {
+                    try {
+                      parsedData = JSON.parse(learning.content)
+                    } catch {
+                      // JSON이 아니면 HTML로 처리
+                      return <div dangerouslySetInnerHTML={{ __html: learning.content }} />
+                    }
+                  } else {
+                    parsedData = learning.content
+                  }
+                  
+                  if (isLexicalData(parsedData)) {
+                    // Lexical 데이터인 경우
+                    const html = renderLexicalData(parsedData)
+                    return <div dangerouslySetInnerHTML={{ __html: html }} />
+                  } else {
+                    // 레거시 HTML인 경우
+                    return <div dangerouslySetInnerHTML={{ __html: learning.content }} />
+                  }
+                })()}
+              </div>
             </div>
           ))}
         </div>

@@ -27,10 +27,13 @@ export const ImageUploadPlugin = () => {
             },
           })
 
-          if (response.data.success && response.data.url) {
+          // 서버 응답 형식: { success: true, file: { url: ... } }
+          const imageUrl = response.data.file?.url || response.data.url
+          
+          if (response.data.success && imageUrl) {
             // 성공: 이미지 노드 삽입
             editor.update(() => {
-              const imageNode = $createImageNode(response.data.url, file.name)
+              const imageNode = $createImageNode(imageUrl, file.name)
               $insertNodes([imageNode])
             })
           } else {

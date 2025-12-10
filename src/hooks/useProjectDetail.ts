@@ -10,7 +10,7 @@ import {
   Language 
 } from '@/utils/i18nUtils'
 
-interface LocalizedProject extends Omit<Project, 'technologies' | 'features' | 'learnings' | 'videoDescriptions'> {
+interface LocalizedProject extends Omit<Project, 'technologies' | 'features' | 'learnings' | 'videoDescriptions' | 'imageDescriptions'> {
   title: string
   description: string
   detailedDescription: string
@@ -18,6 +18,7 @@ interface LocalizedProject extends Omit<Project, 'technologies' | 'features' | '
   features: string[]
   learnings: string[]
   videoDescriptions: string[]
+  imageDescriptions: string[]
 }
 
 interface LinkedSkill extends Skill {
@@ -103,6 +104,12 @@ export const useProjectDetail = (
         project.videoDescriptions,
         project.videoDescriptionsEn,
         project.videoDescriptionsJa
+      ) || [],
+      imageDescriptions: getLocalizedArrayField(
+        currentLang,
+        project.imageDescriptions,
+        project.imageDescriptionsEn,
+        project.imageDescriptionsJa
       ) || [],
     }
   }, [project, currentLang])

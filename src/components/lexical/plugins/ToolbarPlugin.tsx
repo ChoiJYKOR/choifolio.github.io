@@ -9,9 +9,11 @@ import {
 import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text'
 import { INSERT_UNORDERED_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND } from '@lexical/list'
 import { $createCodeNode } from '@lexical/code'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { $createImageNode } from '../nodes/ImageNode'
 import { $createCollapsibleNode } from '../nodes/CollapsibleNode'
+import { INSERT_IMAGE_COMMAND } from './ImageUploadPlugin'
+import { FaImage } from 'react-icons/fa'
 
 export const INSERT_IMAGE_COMMAND_KEY = 'INSERT_IMAGE_COMMAND'
 
@@ -52,6 +54,28 @@ export const ToolbarPlugin = () => {
       const collapsible = $createCollapsibleNode('제목 없음', true)
       $insertNodes([collapsible])
     })
+  }, [editor])
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImageUpload = useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // 이미지 파일인지 확인
+      if (file.type.startsWith('image/')) {
+        editor.dispatchCommand(INSERT_IMAGE_COMMAND, { file })
+      } else {
+        alert('이미지 파일만 업로드할 수 있습니다.')
+      }
+    }
+    // 같은 파일을 다시 선택할 수 있도록 초기화
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }, [editor])
 
   return (
@@ -138,6 +162,22 @@ export const ToolbarPlugin = () => {
         title="Toggle/Collapsible"
       >
         ▼
+      </button>
+      <div className="border-l border-gray-300 dark:border-gray-600 mx-2" />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      <button
+        type="button"
+        onClick={handleImageUpload}
+        className="px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-1"
+        title="이미지 업로드 (Cloudinary)"
+      >
+        <FaImage className="text-sm" />
       </button>
     </div>
   )

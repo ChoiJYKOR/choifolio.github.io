@@ -240,7 +240,13 @@ const VideoLearningDetail: React.FC = () => {
   const handleStartEdit = () => {
     setIsEditingKeyTakeaways(true)
     const parsed = parseKeyTakeaways(video?.keyTakeaways)
-    console.log('📥 편집 모드 진입 - 로드된 데이터:', parsed)
+    console.log('📥 편집 모드 진입 - 원본 데이터:', video?.keyTakeaways)
+    console.log('📥 편집 모드 진입 - 파싱된 데이터:', parsed)
+    // parsed가 빈 상태인지 확인 (children이 비어있으면 빈 상태)
+    const isEmpty = !parsed.root.children || parsed.root.children.length === 0
+    if (isEmpty && video?.keyTakeaways) {
+      console.warn('⚠️ 기존 데이터가 있지만 Lexical 형식이 아닙니다. 빈 상태로 시작합니다.')
+    }
     setEditingContent(parsed)
   }
 
@@ -253,6 +259,27 @@ const VideoLearningDetail: React.FC = () => {
   // 🌟 핵심 배움 저장
   const handleSaveEdit = async () => {
     if (!video || !id) return
+    
+    // editingContent가 null이거나 빈 상태인지 확인
+    if (!editingContent) {
+      toastError('저장 실패', '편집 내용이 없습니다.')
+      return
+    }
+    
+    // 빈 상태인지 확인 (children이 없거나 모두 비어있음)
+    const isEmpty = !editingContent.root?.children || 
+                    editingContent.root.children.length === 0 ||
+                    (editingContent.root.children.length === 1 && 
+                     editingContent.root.children[0]?.type === 'paragraph' &&
+                     (!editingContent.root.children[0].children || 
+                      editingContent.root.children[0].children.length === 0))
+    
+    if (isEmpty) {
+      const confirmDelete = confirm('내용이 비어있습니다. 기존 핵심 배움을 삭제하시겠습니까?')
+      if (!confirmDelete) {
+        return
+      }
+    }
 
     try {
       // 🌟 skillIds와 categoryIds를 문자열 배열로 확실하게 변환
@@ -272,7 +299,7 @@ const VideoLearningDetail: React.FC = () => {
         categoryIds: categoryIds,
         watchDate: video.watchDate,
         purpose: video.purpose,
-        keyTakeaways: JSON.stringify(editingContent),
+        keyTakeaways: isEmpty ? '' : JSON.stringify(editingContent),
         application: video.application,
         skillIds: skillIds,
         rating: video.rating,
@@ -462,10 +489,10 @@ const VideoLearningDetail: React.FC = () => {
                 )}
 
                 {/* 🌟 편집 모드 */}
-                {isEditingKeyTakeaways && editingContent && (
+                {isEditingKeyTakeaways && (
                   <div>
                     <LexicalEditor
-                      value={editingContent}
+                      value={editingContent || { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }}
                       onChange={setEditingContent}
                       placeholder="영상을 보면서 핵심 배움을 작성하세요. 다양한 서식을 적용할 수 있습니다."
                       className="min-h-[250px]"

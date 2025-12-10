@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { FaSave, FaTimes } from 'react-icons/fa'
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
+import LexicalEditor from '../lexical/LexicalEditor'
+import { SerializedEditorState } from 'lexical'
 import { Learning } from '../../types'
 
 // 마크다운 문법 변환 함수 (향후 사용을 위해 유지)
@@ -30,47 +30,32 @@ const LearningForm: React.FC<LearningFormProps> = ({
   onCancel
 }) => {
   const [topic, setTopic] = useState('')
-  const [content, setContent] = useState('')
+  const [content, setContent] = useState<SerializedEditorState | string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
-  // Quill 에디터 설정
-  const quillModules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      ['blockquote', 'code-block'],
-      [{ 'color': [] }, { 'background': [] }],
-      ['link', 'image'],
-      ['clean']
-    ]
+  // Lexical 데이터 파싱 함수
+  const parseContent = (value: string | undefined): SerializedEditorState | null => {
+    if (!value) return null
+    try {
+      const parsed = JSON.parse(value)
+      if (parsed && parsed.root) return parsed
+      // 레거시 HTML 형식인 경우 빈 Lexical 상태로 초기화
+      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+    } catch {
+      // JSON이 아닌 경우 (레거시 HTML 등) 빈 상태로 초기화
+      return { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } }
+    }
   }
-
-  const quillFormats = [
-    'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent',
-    'blockquote', 'code-block',
-    'color', 'background',
-    'link', 'image'
-  ]
 
   useEffect(() => {
     if (learning) {
       setTopic(learning.topic)
-      setContent(learning.content)
+      setContent(parseContent(learning.content))
     } else {
       setTopic('')
-      setContent('')
+      setContent(null)
     }
   }, [learning])
-
-  // HTML 태그를 제거하고 순수 텍스트만 추출하는 함수
-  const stripHtml = (html: string) => {
-    const tmp = document.createElement('div')
-    tmp.innerHTML = html
-    return tmp.textContent || tmp.innerText || ''
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,16 +65,17 @@ const LearningForm: React.FC<LearningFormProps> = ({
       return
     }
 
-    // HTML 태그를 제거한 순수 텍스트로 검증
-    const plainTextContent = stripHtml(content).trim()
-    if (!plainTextContent) {
+    // Lexical 데이터 검증
+    if (!content || (typeof content === 'object' && (!content.root || !content.root.children || content.root.children.length === 0))) {
       alert('학습 내용을 입력해주세요.')
       return
     }
 
     try {
       setIsSaving(true)
-      await onSave({ topic: topic.trim(), content: content.trim() })
+      // Lexical 데이터를 JSON 문자열로 변환하여 저장
+      const contentString = typeof content === 'string' ? content : JSON.stringify(content)
+      await onSave({ topic: topic.trim(), content: contentString })
     } catch (error) {
       console.error('학습 내용 저장 실패:', error)
     } finally {
@@ -131,29 +117,21 @@ const LearningForm: React.FC<LearningFormProps> = ({
           <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             학습 내용
             <span className="text-xs text-gray-500 ml-2">
-              (마크다운 문법 지원: **굵게**, *기울임*, # 제목, - 목록)
+              (Lexical 에디터: 텍스트, 이미지, 리스트 등 다양한 형식 지원)
             </span>
           </label>
-          <div className="rich-text-editor-container">
-            <ReactQuill
-              theme="snow"
-              value={content}
-              onChange={(value) => {
-                console.log('ReactQuill onChange:', value)
-                setContent(value)
-              }}
-              placeholder="학습 내용을 입력하세요. 마크다운 문법을 사용할 수 있습니다."
-              modules={quillModules}
-              formats={quillFormats}
-              className="rich-text-editor"
-            />
-          </div>
+          <LexicalEditor
+            value={content}
+            onChange={(value) => setContent(value)}
+            placeholder="학습 내용을 입력하세요. 텍스트, 이미지, 리스트 등 다양한 형식을 사용할 수 있습니다."
+            className="min-h-[300px]"
+          />
         </div>
 
         <div className="flex gap-3 pt-4">
           <button
             type="submit"
-            disabled={isSaving || !topic.trim() || !stripHtml(content).trim()}
+            disabled={isSaving || !topic.trim() || !content || (typeof content === 'object' && (!content.root || !content.root.children || content.root.children.length === 0))}
             className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
           >
             <FaSave />

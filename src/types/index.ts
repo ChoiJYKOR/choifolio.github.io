@@ -296,6 +296,9 @@ export interface Project extends BaseResource {
   liveLink?: string
   image?: string
   images?: string[]
+  imageDescriptions?: string[]  // 🌟 각 이미지의 설명 (images 배열과 동일한 순서)
+  imageDescriptionsEn?: string[]
+  imageDescriptionsJa?: string[]
   videos?: string[]
   videoDescriptions?: string[]  // 🌟 각 영상의 설명 (videos 배열과 동일한 순서)
   videoDescriptionsEn?: string[]

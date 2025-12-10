@@ -1,7 +1,8 @@
 import React from 'react'
-import { FaSave, FaPlus, FaTrash, FaVideo, FaTimes } from 'react-icons/fa'
+import { FaSave, FaPlus, FaTrash, FaVideo, FaTimes, FaImage } from 'react-icons/fa'
 import { Project, ProjectFormData, Skill, SkillCategory } from '../../types'
 import RichTextEditor from '../RichTextEditor'
+import LexicalEditor from '../lexical/LexicalEditor'
 import { useSkills } from '../../hooks/useSkills'
 import { useCategories } from '../../hooks/useCategories'
 import LanguageTabs from '../common/LanguageTabs'
@@ -20,6 +21,7 @@ const ProjectForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = f
   const {
     formData,
     videoItems,
+    imageItems,
     currentLang,
     setCurrentLang,
     setFormData,
@@ -27,6 +29,10 @@ const ProjectForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = f
     handleVideoDescriptionChange,
     handleAddVideo,
     handleRemoveVideo,
+    handleImageUrlChange,
+    handleImageDescriptionChange,
+    handleAddImage,
+    handleRemoveImage,
     prepareDataForSubmit
   } = useProjectForm(data)
   
@@ -456,24 +462,128 @@ const ProjectForm: React.FC<FormProps> = ({ data, onSave, onCancel, isSaving = f
         )}
       </div>
       
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          추가 이미지 URLs (줄바꿈으로 구분)
-        </label>
-        <textarea
-          value={typeof formData.images === 'string' ? formData.images : (Array.isArray(formData.images) ? formData.images.join('\n') : '')}
-          onChange={(e) => {
-            const value = e.target.value
-            setFormData({
-              ...formData,
-              images: value, // 원본 텍스트를 그대로 저장
-            })
-          }}
-          rows={3}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-y"
-          placeholder="https://example.com/image1.jpg
-https://example.com/image2.jpg"
-        />
+      {/* 🌟 이미지 관리 섹션 (개선된 UI) */}
+      <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-6 space-y-4 bg-gray-50 dark:bg-gray-800">
+        <div className="flex items-center justify-between mb-4">
+          <label className="block text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <FaImage className="text-green-600 dark:text-green-400" />
+            이미지 관리
+          </label>
+          <button
+            type="button"
+            onClick={handleAddImage}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium"
+          >
+            <FaPlus /> 이미지 추가
+          </button>
+        </div>
+
+        {imageItems.length === 0 ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <FaImage className="text-4xl mx-auto mb-2 opacity-50" />
+            <p>아직 추가된 이미지가 없습니다.</p>
+            <p className="text-sm mt-1">위의 "이미지 추가" 버튼을 클릭하여 이미지를 추가하세요.</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {imageItems.map((item, index) => (
+              <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-900 space-y-4">
+                {/* 헤더 */}
+                <div className="flex items-center justify-between">
+                  <h4 className="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span className="flex items-center justify-center w-8 h-8 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-full text-sm font-bold">
+                      {index + 1}
+                    </span>
+                    이미지 {index + 1}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="flex items-center gap-1 px-3 py-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-sm"
+                  >
+                    <FaTrash /> 삭제
+                  </button>
+                </div>
+
+                {/* 이미지 URL 입력 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    이미지 URL *
+                  </label>
+                  <input
+                    type="url"
+                    value={item.url}
+                    onChange={(e) => handleImageUrlChange(index, e.target.value)}
+                    placeholder="https://example.com/image1.jpg"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                {/* 이미지 설명 (RichTextEditor - 다국어) */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      이미지 설명 (리치텍스트)
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({currentLang === 'ko' ? '🇰🇷 한국어' : currentLang === 'en' ? '🇺🇸 English' : '🇯🇵 日本語'})
+                      </span>
+                    </label>
+                    <span className={`text-xs ${
+                      (currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length) > 5000 
+                        ? 'text-red-600 dark:text-red-400 font-bold' 
+                        : (currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length) > 4000
+                        ? 'text-orange-600 dark:text-orange-400'
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}>
+                      {currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length} / 5000자
+                    </span>
+                  </div>
+                  
+                  {currentLang === 'ko' && (
+                    <RichTextEditor
+                      value={item.description}
+                      onChange={(value) => handleImageDescriptionChange(index, value, 'ko')}
+                      placeholder="이 이미지에 대한 간단한 설명을 작성하세요. 굵게, 기울임, 리스트 등 다양한 서식을 사용할 수 있습니다."
+                      rows={4}
+                      className="min-h-[150px]"
+                    />
+                  )}
+                  
+                  {currentLang === 'en' && (
+                    <RichTextEditor
+                      value={item.descriptionEn}
+                      onChange={(value) => handleImageDescriptionChange(index, value, 'en')}
+                      placeholder="Write a brief description of this image. You can use bold, italic, lists, and other formatting."
+                      rows={4}
+                      className="min-h-[150px]"
+                    />
+                  )}
+                  
+                  {currentLang === 'ja' && (
+                    <RichTextEditor
+                      value={item.descriptionJa}
+                      onChange={(value) => handleImageDescriptionChange(index, value, 'ja')}
+                      placeholder="この画像の簡単な説明を書いてください。太字、斜体、リストなどの書式を使用できます。"
+                      rows={4}
+                      className="min-h-[150px]"
+                    />
+                  )}
+                  
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      💡 이 설명은 프로젝트 상세 페이지에서 이미지 하단에 표시됩니다.
+                    </p>
+                    {(currentLang === 'ko' ? item.description.length : currentLang === 'en' ? item.descriptionEn.length : item.descriptionJa.length) > 4000 && (
+                      <p className="text-xs text-orange-600 dark:text-orange-400">
+                        ⚠️ 글자 수가 많습니다. 간결하게 작성해주세요.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 🌟 영상 관리 섹션 (개선된 UI) */}
@@ -603,36 +713,33 @@ https://example.com/image2.jpg"
       {/* Detailed Description Field (Multilingual) */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          상세 설명 (리치텍스트 에디터)
+          상세 설명 (Lexical 에디터)
           <span className="text-xs text-gray-500 ml-2">
             ({currentLang === 'ko' ? '🇰🇷 한국어' : currentLang === 'en' ? '🇺🇸 English' : '🇯🇵 日本語'})
           </span>
         </label>
         {currentLang === 'ko' && (
-          <RichTextEditor
-            value={formData.detailedDescription || ''}
-            onChange={(value) => setFormData({ ...formData, detailedDescription: value })}
+          <LexicalEditor
+            value={formData.detailedDescription || null}
+            onChange={(value) => setFormData({ ...formData, detailedDescription: typeof value === 'string' ? value : JSON.stringify(value) })}
             placeholder="프로젝트의 상세한 설명을 작성해주세요."
-            rows={6}
-            className="min-h-[200px]"
+            className="min-h-[300px]"
           />
         )}
         {currentLang === 'en' && (
-          <RichTextEditor
-            value={formData.detailedDescriptionEn || ''}
-            onChange={(value) => setFormData({ ...formData, detailedDescriptionEn: value })}
+          <LexicalEditor
+            value={formData.detailedDescriptionEn || null}
+            onChange={(value) => setFormData({ ...formData, detailedDescriptionEn: typeof value === 'string' ? value : JSON.stringify(value) })}
             placeholder="Write a detailed description of the project."
-            rows={6}
-            className="min-h-[200px]"
+            className="min-h-[300px]"
           />
         )}
         {currentLang === 'ja' && (
-          <RichTextEditor
-            value={formData.detailedDescriptionJa || ''}
-            onChange={(value) => setFormData({ ...formData, detailedDescriptionJa: value })}
+          <LexicalEditor
+            value={formData.detailedDescriptionJa || null}
+            onChange={(value) => setFormData({ ...formData, detailedDescriptionJa: typeof value === 'string' ? value : JSON.stringify(value) })}
             placeholder="プロジェクトの詳細な説明を書いてください。"
-            rows={6}
-            className="min-h-[200px]"
+            className="min-h-[300px]"
           />
         )}
       </div>

@@ -101,6 +101,9 @@ const ProjectSchema = new mongoose.Schema({
   liveLink: String,
   image: String,
   images: [String],
+  imageDescriptions: [String],  // 🌟 각 이미지의 설명 (images 배열과 동일한 순서)
+  imageDescriptionsEn: [String],
+  imageDescriptionsJa: [String],
   videos: [String],
   videoDescriptions: [String],  // 🌟 각 영상의 설명 (videos 배열과 동일한 순서)
   videoDescriptionsEn: [String],

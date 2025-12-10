@@ -10,19 +10,33 @@ export interface VideoItem {
   descriptionJa: string
 }
 
+// Image item type with multilingual descriptions
+export interface ImageItem {
+  url: string
+  description: string
+  descriptionEn: string
+  descriptionJa: string
+}
+
 interface UseProjectFormReturn {
   formData: any
   videoItems: VideoItem[]
+  imageItems: ImageItem[]
   currentLang: AdminLanguage
   setCurrentLang: (lang: AdminLanguage) => void
   setFormData: React.Dispatch<React.SetStateAction<any>>
   setVideoItems: React.Dispatch<React.SetStateAction<VideoItem[]>>
+  setImageItems: React.Dispatch<React.SetStateAction<ImageItem[]>>
   handleFieldChange: (key: string, value: any) => void
   handleArrayFieldChange: (key: string, value: string[]) => void
   handleVideoUrlChange: (index: number, url: string) => void
   handleVideoDescriptionChange: (index: number, description: string, lang: 'ko' | 'en' | 'ja') => void
   handleAddVideo: () => void
   handleRemoveVideo: (index: number) => void
+  handleImageUrlChange: (index: number, url: string) => void
+  handleImageDescriptionChange: (index: number, description: string, lang: 'ko' | 'en' | 'ja') => void
+  handleAddImage: () => void
+  handleRemoveImage: (index: number) => void
   prepareDataForSubmit: () => any
 }
 
@@ -60,6 +74,19 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
     return []
   })
 
+  // Initialize image items
+  const [imageItems, setImageItems] = useState<ImageItem[]>(() => {
+    if (initialData?.images && Array.isArray(initialData.images)) {
+      return initialData.images.map((url, index) => ({
+        url,
+        description: initialData.imageDescriptions?.[index] || '',
+        descriptionEn: initialData.imageDescriptionsEn?.[index] || '',
+        descriptionJa: initialData.imageDescriptionsJa?.[index] || ''
+      }))
+    }
+    return []
+  })
+
   // Initialize form data
   const [formData, setFormData] = useState<any>(
     initialData ? {
@@ -68,7 +95,6 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
       technologies: Array.isArray(initialData.technologies) ? initialData.technologies.join('\n') : initialData.technologies || '',
       technologiesEn: Array.isArray(initialData.technologiesEn) ? initialData.technologiesEn.join('\n') : initialData.technologiesEn || '',
       technologiesJa: Array.isArray(initialData.technologiesJa) ? initialData.technologiesJa.join('\n') : initialData.technologiesJa || '',
-      images: Array.isArray(initialData.images) ? initialData.images.join('\n') : initialData.images || '',
       features: Array.isArray(initialData.features) ? initialData.features.join('\n') : initialData.features || '',
       featuresEn: Array.isArray(initialData.featuresEn) ? initialData.featuresEn.join('\n') : initialData.featuresEn || '',
       featuresJa: Array.isArray(initialData.featuresJa) ? initialData.featuresJa.join('\n') : initialData.featuresJa || '',
@@ -93,7 +119,6 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
       githubLink: '',
       liveLink: '',
       image: '',
-      images: '',
       detailedDescription: '',
       detailedDescriptionEn: '',
       detailedDescriptionJa: '',
@@ -155,6 +180,37 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
     }
   }
 
+  // Image management functions
+  const handleAddImage = () => {
+    setImageItems([...imageItems, { url: '', description: '', descriptionEn: '', descriptionJa: '' }])
+  }
+
+  const handleRemoveImage = (index: number) => {
+    setImageItems(imageItems.filter((_, i) => i !== index))
+  }
+
+  const handleImageUrlChange = (index: number, url: string) => {
+    const newImageItems = [...imageItems]
+    if (newImageItems[index]) {
+      newImageItems[index].url = url
+      setImageItems(newImageItems)
+    }
+  }
+
+  const handleImageDescriptionChange = (index: number, description: string, lang: 'ko' | 'en' | 'ja') => {
+    const newImageItems = [...imageItems]
+    if (newImageItems[index]) {
+      if (lang === 'ko') {
+        newImageItems[index].description = description
+      } else if (lang === 'en') {
+        newImageItems[index].descriptionEn = description
+      } else if (lang === 'ja') {
+        newImageItems[index].descriptionJa = description
+      }
+      setImageItems(newImageItems)
+    }
+  }
+
   // Prepare data for submission
   const prepareDataForSubmit = (): any => {
     // Extract video data
@@ -162,6 +218,12 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
     const videoDescriptions = videoItems.map(item => item.description)
     const videoDescriptionsEn = videoItems.map(item => item.descriptionEn)
     const videoDescriptionsJa = videoItems.map(item => item.descriptionJa)
+    
+    // Extract image data
+    const images = imageItems.map(item => item.url).filter(url => url.trim().length > 0)
+    const imageDescriptions = imageItems.map(item => item.description)
+    const imageDescriptionsEn = imageItems.map(item => item.descriptionEn)
+    const imageDescriptionsJa = imageItems.map(item => item.descriptionJa)
     
     // Validate video descriptions length
     for (let i = 0; i < videoItems.length; i++) {
@@ -174,6 +236,20 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
       }
       if (item.descriptionJa && item.descriptionJa.length > 5000) {
         throw new Error(`영상 ${i + 1}의 일본어 설명이 너무 깁니다 (현재: ${item.descriptionJa.length}자, 최대: 5000자)`)
+      }
+    }
+    
+    // Validate image descriptions length
+    for (let i = 0; i < imageItems.length; i++) {
+      const item = imageItems[i]
+      if (item.description && item.description.length > 5000) {
+        throw new Error(`이미지 ${i + 1}의 한국어 설명이 너무 깁니다 (현재: ${item.description.length}자, 최대: 5000자)`)
+      }
+      if (item.descriptionEn && item.descriptionEn.length > 5000) {
+        throw new Error(`이미지 ${i + 1}의 영어 설명이 너무 깁니다 (현재: ${item.descriptionEn.length}자, 최대: 5000자)`)
+      }
+      if (item.descriptionJa && item.descriptionJa.length > 5000) {
+        throw new Error(`이미지 ${i + 1}의 일본어 설명이 너무 깁니다 (현재: ${item.descriptionJa.length}자, 최대: 5000자)`)
       }
     }
     
@@ -191,9 +267,10 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
         ? formData.technologiesJa.split(/[,\n]/).map((s: string) => s.trim()).filter((s: string) => s.length > 0)
         : formData.technologiesJa || [],
       // Images
-      images: typeof formData.images === 'string' 
-        ? formData.images.split('\n').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
-        : formData.images || [],
+      images,
+      imageDescriptions,
+      imageDescriptionsEn,
+      imageDescriptionsJa,
       // Videos
       videos,
       videoDescriptions,
@@ -229,16 +306,22 @@ export const useProjectForm = (initialData: Project | null): UseProjectFormRetur
   return {
     formData,
     videoItems,
+    imageItems,
     currentLang,
     setCurrentLang,
     setFormData,
     setVideoItems,
+    setImageItems,
     handleFieldChange,
     handleArrayFieldChange,
     handleVideoUrlChange,
     handleVideoDescriptionChange,
     handleAddVideo,
     handleRemoveVideo,
+    handleImageUrlChange,
+    handleImageDescriptionChange,
+    handleAddImage,
+    handleRemoveImage,
     prepareDataForSubmit
   }
 }

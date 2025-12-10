@@ -58,7 +58,23 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
     }
   }
 
-  const [formData, setFormData] = useState<Omit<VideoPlaylistFormData, 'playlistId' | 'keyTakeaways'> & { keyTakeaways: SerializedEditorState }>(
+  // purpose와 application을 SerializedEditorState 형식으로 관리
+  const parseLexicalField = (value: string | undefined): SerializedEditorState | null => {
+    if (!value) return null
+    try {
+      const parsed = JSON.parse(value)
+      if (parsed && parsed.root) return parsed
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  const [formData, setFormData] = useState<Omit<VideoPlaylistFormData, 'playlistId' | 'keyTakeaways' | 'purpose' | 'application'> & { 
+    keyTakeaways: SerializedEditorState
+    purpose: SerializedEditorState | null
+    application: SerializedEditorState | null
+  }>(
     data
       ? { 
           title: data.title,
@@ -66,9 +82,9 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
           categoryIds: initialCategoryIds,
           watchDate: initialWatchDate as string,
           rating: data.rating || 3,
-          purpose: data.purpose || '',
+          purpose: parseLexicalField(data.purpose),
           keyTakeaways: parseKeyTakeaways(data.keyTakeaways),
-          application: data.application || '',
+          application: parseLexicalField(data.application),
           skillIds: (data.skillIds || []).map((skillIdOrObj: any) => 
             typeof skillIdOrObj === 'string' ? skillIdOrObj : skillIdOrObj._id
           ).filter(Boolean) as string[],
@@ -80,9 +96,9 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
           categoryIds: [],
           watchDate: initialWatchDate as string,
           rating: 3,
-          purpose: '',
-          keyTakeaways: { blocks: [] },
-          application: '',
+          purpose: null,
+          keyTakeaways: { root: { children: [], direction: 'ltr', format: '', indent: 0, type: 'root', version: 1 } },
+          application: null,
           skillIds: [],
           order: 0,
         }
@@ -148,9 +164,9 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
       categoryIds: categoryIds || [],  // 🌟 다중 카테고리 추가
       watchDate, 
       ...(rating !== undefined && { rating }),
-      ...(purpose && { purpose }),
+      ...(purpose && { purpose: typeof purpose === 'string' ? purpose : JSON.stringify(purpose) }),
       ...(keyTakeaways && { keyTakeaways: JSON.stringify(keyTakeaways) }),
-      ...(application && { application }),
+      ...(application && { application: typeof application === 'string' ? application : JSON.stringify(application) }),
       skillIds: skillIds || [],
       order: order || 0,
     }
@@ -315,12 +331,11 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             시청 목적
           </label>
-          <textarea
+          <LexicalEditor
             value={formData.purpose}
-            onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-vertical"
-            rows={3}
+            onChange={(value) => setFormData({ ...formData, purpose: value })}
             placeholder="이 재생 목록을 왜 시청했는지 작성하세요..."
+            className="min-h-[200px]"
           />
         </div>
 
@@ -341,15 +356,17 @@ const VideoPlaylistForm: React.FC<FormProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            통합 적용 계획 (마크다운 지원)
+            통합 적용 계획
           </label>
-          <textarea
+          <LexicalEditor
             value={formData.application}
-            onChange={(e) => setFormData({ ...formData, application: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-vertical font-mono text-sm"
-            rows={5}
+            onChange={(value) => setFormData({ ...formData, application: value })}
             placeholder="이 지식을 어떻게 활용할 계획인지 작성하세요..."
+            className="min-h-[250px]"
           />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            텍스트, 이미지, 리스트 등 다양한 형식으로 작성할 수 있습니다
+          </p>
         </div>
       </div>
 

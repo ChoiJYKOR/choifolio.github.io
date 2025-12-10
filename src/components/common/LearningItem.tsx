@@ -4,7 +4,7 @@ import { FaEdit, FaTrash, FaTag } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { Learning, Skill } from '../../types'
 import { formatDate, formatRelativeDate } from '../../utils/dateUtils'
-import { parseMarkdown, getFormattedReadingTime } from '../../utils/textUtils'
+import { parseMarkdown, getFormattedReadingTime, renderLexicalData, isLexicalData } from '../../utils/textUtils'
 import RichTextEditor from '../RichTextEditor'
 
 // 🌟 BookDetail.tsx에서 전달받는 Skill Map의 값 타입
@@ -236,10 +236,31 @@ const LearningItem: React.FC<LearningItemProps> = ({
           )}
           {/* 🌟 연결된 스킬 배지 목록 끝 */}
 
-          <div 
-            className="text-gray-600 dark:text-gray-300 leading-relaxed prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: parseMarkdown(learning.content) }}
-          />
+          <div className="text-gray-600 dark:text-gray-300 leading-relaxed prose prose-sm max-w-none dark:prose-invert">
+            {(() => {
+              // Lexical 데이터인지 확인
+              let parsedData: any
+              if (typeof learning.content === 'string') {
+                try {
+                  parsedData = JSON.parse(learning.content)
+                } catch {
+                  // JSON이 아니면 마크다운으로 처리
+                  return <div dangerouslySetInnerHTML={{ __html: parseMarkdown(learning.content) }} />
+                }
+              } else {
+                parsedData = learning.content
+              }
+              
+              if (isLexicalData(parsedData)) {
+                // Lexical 데이터인 경우
+                const html = renderLexicalData(parsedData)
+                return <div dangerouslySetInnerHTML={{ __html: html }} />
+              } else {
+                // 마크다운인 경우
+                return <div dangerouslySetInnerHTML={{ __html: parseMarkdown(learning.content) }} />
+              }
+            })()}
+          </div>
           <div className="mt-4 text-sm text-gray-500 dark:text-gray-500">
             작성일: {formatDate(learning.createdAt)} ({formatRelativeDate(learning.createdAt)}) • {getFormattedReadingTime(learning.content)}
           </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { FaPlus, FaEdit, FaTrash, FaChevronDown, FaChevronRight, FaBook } from 'react-icons/fa'
 import { Chapter, Learning } from '../../types'
 import { formatDate } from '../../utils/dateUtils'
+import { renderLexicalData, isLexicalData } from '../../utils/textUtils'
 
 interface ChapterLearningListProps {
   chapters: Chapter[]
@@ -212,7 +213,7 @@ const ChapterLearningList: React.FC<ChapterLearningListProps> = ({
                                 )}
                               </div>
                               
-                              {/* 🌟 ReactQuill로 작성된 HTML 콘텐츠 렌더링 */}
+                              {/* 🌟 Lexical 또는 레거시 HTML 콘텐츠 렌더링 */}
                               <div 
                                 className="prose prose-sm max-w-none dark:prose-invert text-gray-700 dark:text-gray-300
                                   prose-headings:text-gray-900 dark:prose-headings:text-white
@@ -220,8 +221,31 @@ const ChapterLearningList: React.FC<ChapterLearningListProps> = ({
                                   prose-code:bg-gray-200 dark:prose-code:bg-gray-700 prose-code:text-red-600 dark:prose-code:text-red-400 prose-code:px-1 prose-code:rounded
                                   prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:text-gray-100
                                   prose-a:text-blue-600 dark:prose-a:text-blue-400"
-                                dangerouslySetInnerHTML={{ __html: learning.content }}
-                              />
+                              >
+                                {(() => {
+                                  // Lexical 데이터인지 확인
+                                  let parsedData: any
+                                  if (typeof learning.content === 'string') {
+                                    try {
+                                      parsedData = JSON.parse(learning.content)
+                                    } catch {
+                                      // JSON이 아니면 HTML로 처리
+                                      return <div dangerouslySetInnerHTML={{ __html: learning.content }} />
+                                    }
+                                  } else {
+                                    parsedData = learning.content
+                                  }
+                                  
+                                  if (isLexicalData(parsedData)) {
+                                    // Lexical 데이터인 경우
+                                    const html = renderLexicalData(parsedData)
+                                    return <div dangerouslySetInnerHTML={{ __html: html }} />
+                                  } else {
+                                    // 레거시 HTML인 경우
+                                    return <div dangerouslySetInnerHTML={{ __html: learning.content }} />
+                                  }
+                                })()}
+                              </div>
                               
                               <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                                 <span>📅 작성일: {formatDate(learning.createdAt)}</span>

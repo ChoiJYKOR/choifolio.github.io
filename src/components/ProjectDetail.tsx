@@ -3,6 +3,8 @@ import { useParams, useNavigate, Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FaArrowLeft, FaGithub, FaExternalLinkAlt, FaPlay, FaImage, FaCode, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { useTranslation } from 'react-i18next'
+import ReactMarkdown from 'react-markdown'
+import { renderLexicalData, isLexicalData } from '../utils/textUtils'
 import { useProjectDetail } from '../hooks/useProjectDetail'
 
 const ProjectDetail: React.FC = () => {
@@ -18,7 +20,7 @@ const ProjectDetail: React.FC = () => {
   // UI state management
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
-  const [currentShortsIndex, setCurrentShortsIndex] = useState(0)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   // Utility function for skill badge styling
   const getBadgeStyle = (colorCode: string) => {
@@ -59,17 +61,9 @@ const ProjectDetail: React.FC = () => {
     return url.includes('youtube.com') || url.includes('youtu.be')
   }
 
-  // 🌟 유튜브 쇼츠 URL 판별 함수 추가
-  const isYouTubeShorts = (url: string) => {
-    return url.includes('youtube.com/shorts/')
-  }
-
   const getYouTubeEmbedUrl = (url: string) => {
     let videoId = ''
-    // 🌟 유튜브 쇼츠 지원 추가
-    if (url.includes('youtube.com/shorts/')) {
-      videoId = url.split('shorts/')[1]?.split('?')[0] || ''
-    } else if (url.includes('youtube.com/watch?v=')) {
+    if (url.includes('youtube.com/watch?v=')) {
       videoId = url.split('v=')[1]?.split('&')[0] || ''
     } else if (url.includes('youtu.be/')) {
       videoId = url.split('youtu.be/')[1]?.split('?')[0] || ''
@@ -77,9 +71,8 @@ const ProjectDetail: React.FC = () => {
     return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&showinfo=0` : ''
   }
 
-  // 🌟 동영상 분류 (쇼츠 vs 일반)
-  const regularVideos = localizedProject.videos?.filter((video: string) => !isYouTubeShorts(video)) || []
-  const shortsVideos = localizedProject.videos?.filter((video: string) => isYouTubeShorts(video)) || []
+  // 동영상 목록
+  const regularVideos = localizedProject.videos || []
 
   return (
     <section className="section-padding bg-gray-50 dark:bg-dark-900 min-h-screen">
@@ -245,43 +238,10 @@ const ProjectDetail: React.FC = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Additional Images - 전체 너비 */}
-          {localizedProject.images && localizedProject.images.length > 0 && (
-            <div className="lg:col-span-4 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                <FaImage /> 프로젝트 이미지
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {localizedProject.images.map((image, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="cursor-pointer group"
-                    onClick={() => setSelectedImage(image)}
-                  >
-                    <div className="aspect-video rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow">
-                      <img
-                        src={image}
-                        alt={`${localizedProject.title} ${index + 1}`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        decoding="async"
-                        width="640"
-                        height="360"
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* 🌟 영상 섹션 - 가로 배치 */}
-          {/* 🌟 일반 동영상 (가로형) - 왼쪽 (3/4) */}
+          {/* 🌟 일반 동영상 (가로형) - 전체 너비 */}
           {regularVideos.length > 0 && (
-            <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8" data-video-section>
+            <div className="lg:col-span-4 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8" data-video-section>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                   <FaPlay /> 프로젝트 동영상
@@ -409,61 +369,49 @@ const ProjectDetail: React.FC = () => {
             </div>
           )}
 
-          {/* 🌟 유튜브 쇼츠 (세로형) - 오른쪽 (1/4) */}
-          {shortsVideos.length > 0 && (
-            <div className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg px-4 py-8" data-shorts-section>
-              {/* 🌟 쇼츠 컨테이너 - 완전 중앙 정렬 */}
-              <div className="flex justify-center items-center">
-                <div className="relative group px-0" style={{ maxWidth: '280px', width: '100%' }}>
-                  {/* 🌟 타이틀을 영상 컨테이너 안으로 이동 */}
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                      <FaPlay /> Shorts
-                    </h3>
-                    {shortsVideos.length > 1 && (
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {currentShortsIndex + 1} / {shortsVideos.length}
-                      </span>
-                    )}
-                  </div>
+          {/* 🌟 프로젝트 이미지 섹션 - 프로젝트 동영상 아래 */}
+          {localizedProject.images && localizedProject.images.length > 0 && (
+            <div className="lg:col-span-4 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <FaImage /> 프로젝트 이미지
+                </h3>
+                {localizedProject.images.length > 1 && (
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {currentImageIndex + 1} / {localizedProject.images.length}
+                  </span>
+                )}
+              </div>
+              
+              <div className="relative">
+                {/* 이미지 컨테이너 */}
+                <div className="relative group">
                   {(() => {
-                    const video = shortsVideos[currentShortsIndex]
-                    if (!video) return null
-                    
-                    const videoIndexInAll = localizedProject.videos?.indexOf(video) ?? -1
+                    const image = localizedProject.images[currentImageIndex]
+                    if (!image) return null
                     
                     return (
-                      <div className="w-full">
-                        <div className="relative w-full rounded-lg overflow-hidden shadow-lg bg-black">
-                          {/* 🌟 세로 형식 (9:16 비율) - 최대 높이 설정 */}
-                          <div className="aspect-[9/16] w-full" style={{ maxHeight: '600px' }}>
-                            <iframe
-                              src={getYouTubeEmbedUrl(video)}
-                              title={`${localizedProject.title} Shorts ${currentShortsIndex + 1}`}
-                              className="w-full h-full"
-                              allowFullScreen
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      <div>
+                        <div className="relative w-full rounded-lg overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700 cursor-pointer" onClick={() => setSelectedImage(image)}>
+                          <div className="aspect-video">
+                            <img
+                              src={image}
+                              alt={`${localizedProject.title} 이미지 ${currentImageIndex + 1}`}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              loading="lazy"
+                              decoding="async"
+                              width="1280"
+                              height="720"
                             />
-                          </div>
-                          {/* YouTube 쇼츠 링크 */}
-                          <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <a
-                              href={video}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1 shadow-lg"
-                            >
-                              Shorts
-                            </a>
                           </div>
                         </div>
                         
-                        {/* 🌟 영상 설명 (HTML 렌더링) */}
-                        {localizedProject.videoDescriptions?.[videoIndexInAll] && (
-                          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg" style={{ maxWidth: '600px', margin: '1rem auto 0' }}>
+                        {/* 🌟 이미지 설명 (HTML 렌더링) */}
+                        {localizedProject.imageDescriptions?.[currentImageIndex] && (
+                          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                             <div 
                               className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none"
-                              dangerouslySetInnerHTML={{ __html: localizedProject.videoDescriptions[videoIndexInAll] }}
+                              dangerouslySetInnerHTML={{ __html: localizedProject.imageDescriptions[currentImageIndex] }}
                             />
                           </div>
                         )}
@@ -471,46 +419,46 @@ const ProjectDetail: React.FC = () => {
                     )
                   })()}
                   
-                  {/* 🌟 좌우 화살표 (쇼츠가 2개 이상일 때) */}
-                  {shortsVideos.length > 1 && (
+                  {/* 🌟 좌우 화살표 (이미지가 2개 이상일 때) */}
+                  {localizedProject.images.length > 1 && (
                     <>
                       <button
-                        onClick={() => setCurrentShortsIndex((prev) => (prev === 0 ? shortsVideos.length - 1 : prev - 1))}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 z-10"
-                        aria-label="이전 쇼츠"
+                        onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? localizedProject.images!.length - 1 : prev - 1))}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all z-10"
+                        aria-label="이전 이미지"
                       >
                         <FaChevronLeft size={20} />
                       </button>
                       <button
-                        onClick={() => setCurrentShortsIndex((prev) => (prev === shortsVideos.length - 1 ? 0 : prev + 1))}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 z-10"
-                        aria-label="다음 쇼츠"
+                        onClick={() => setCurrentImageIndex((prev) => (prev === localizedProject.images!.length - 1 ? 0 : prev + 1))}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all z-10"
+                        aria-label="다음 이미지"
                       >
                         <FaChevronRight size={20} />
                       </button>
                     </>
                   )}
                 </div>
+                
+                {/* 🌟 인디케이터 (이미지가 2개 이상일 때) */}
+                {localizedProject.images.length > 1 && (
+                  <div className="flex justify-center gap-2 mt-4">
+                    {localizedProject.images.map((_: string, index: number) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`h-2 rounded-full transition-all ${
+                          index === currentImageIndex 
+                            ? 'w-8 bg-blue-600 dark:bg-blue-400' 
+                            : 'w-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                        }`}
+                        aria-label={`${index + 1}번째 이미지 보기`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-              
-              {/* 🌟 인디케이터 (쇼츠가 2개 이상일 때) */}
-              {shortsVideos.length > 1 && (
-                <div className="flex justify-center gap-2 mt-4">
-                  {shortsVideos.map((_: string, index: number) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentShortsIndex(index)}
-                      className={`h-2 rounded-full transition-all ${
-                        index === currentShortsIndex 
-                          ? 'w-8 bg-red-600 dark:bg-red-400' 
-                          : 'w-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
-                      }`}
-                      aria-label={`${index + 1}번째 쇼츠 보기`}
-                    />
-                  ))}
-                </div>
-          )}
-          </div>
+            </div>
           )}
 
           {/* 프로젝트 설명 - 전체 너비 */}
@@ -519,10 +467,32 @@ const ProjectDetail: React.FC = () => {
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 상세 설명
               </h3>
-              <div 
-                className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"
-                dangerouslySetInnerHTML={{ __html: localizedProject.detailedDescription }}
-              />
+              <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                {(() => {
+                  const description = localizedProject.detailedDescription
+                  // Lexical 데이터인지 확인
+                  let parsedData: any
+                  if (typeof description === 'string') {
+                    try {
+                      parsedData = JSON.parse(description)
+                    } catch {
+                      // JSON 파싱 실패 시 마크다운으로 처리
+                      return <ReactMarkdown>{description}</ReactMarkdown>
+                    }
+                  } else {
+                    parsedData = description
+                  }
+                  
+                  if (isLexicalData(parsedData)) {
+                    // Lexical 데이터인 경우
+                    const html = renderLexicalData(parsedData)
+                    return <div dangerouslySetInnerHTML={{ __html: html }} />
+                  } else {
+                    // 마크다운인 경우
+                    return <ReactMarkdown>{typeof description === 'string' ? description : JSON.stringify(description)}</ReactMarkdown>
+                  }
+                })()}
+              </div>
             </div>
           )}
 
